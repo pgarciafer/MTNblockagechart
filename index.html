@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Blockage Chart</title>
-<link rel="icon" href="https://raw.githubusercontent.com/pgarciafer/pics2PDF/main/logo1.png" type="image/png">
+<link rel="icon" href="https://raw.githubusercontent.com/pgarciafer/MTNblockagechart/main/logo1.png" type="image/png">
 <style>
 body { font-family: sans-serif; text-align:center; padding:20px; background:#f5f5f5; }
 .card { max-width:950px; margin:auto; background:white; border-radius:12px; padding:18px; }
@@ -82,6 +82,21 @@ th, td{padding:6px; text-align:center; border-bottom:1px solid #e6eef8;}
 }
 #overlayCanvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:2; }
 
+/* Header Styling */
+.main-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+#pageLogo {
+    height: 50px;
+}
+h1 {
+    margin: 0;
+}
+
 /* Header Inputs Styling */
 .header-inputs {
     display: flex;
@@ -110,6 +125,11 @@ th, td{padding:6px; text-align:center; border-bottom:1px solid #e6eef8;}
     .header-inputs input {
         width: 100%;
         box-sizing: border-box;
+    }
+    
+    /* This overrides the desktop ID styles that have higher specificity */
+    #vesselName, #antennaLocation {
+        width: 100%;
     }
 
     /* Responsive Blockage Zone Table */
@@ -168,7 +188,10 @@ th, td{padding:6px; text-align:center; border-bottom:1px solid #e6eef8;}
 </head>
 <body>
 <div class="card">
-  <h1>Blockage Chart</h1>
+  <div class="main-header">
+    <img src="https://raw.githubusercontent.com/pgarciafer/MTNblockagechart/main/logo.png" alt="Logo" id="pageLogo">
+    <h1>Blockage Chart</h1>
+  </div>
 
   <div class="header-inputs">
     <input id="vesselName" type="text" placeholder="3LC_VesselName">
@@ -240,6 +263,33 @@ const zonesBody=document.getElementById('zonesBody');
 const overlayCanvas=document.getElementById('overlayCanvas');
 const overlayCtx=overlayCanvas.getContext('2d');
 const vesselImg=document.getElementById('vesselImage');
+
+function validateZoneRow(tr) {
+    const startInput = tr.cells[0].querySelector('input');
+    const stopInput = tr.cells[1].querySelector('input');
+    const start = parseFloat(startInput.value);
+    const stop = parseFloat(stopInput.value);
+
+    if (isNaN(start) || isNaN(stop)) {
+        startInput.style.borderColor = '';
+        stopInput.style.borderColor = '';
+        return;
+    }
+
+    let angle = stop - start;
+    if (angle < 0) {
+        angle += 360; // Assumes wrap-around
+    }
+
+    // A zone > 180 degrees is likely a user error (e.g., swapped start/stop)
+    if (angle > 180) {
+        startInput.style.borderColor = 'red';
+        stopInput.style.borderColor = 'red';
+    } else {
+        startInput.style.borderColor = ''; // Reset to default
+        stopInput.style.borderColor = '';
+    }
+}
 
 function formatNumber(num){return(Math.round(num*100)/100).toString().replace(/\.00$/,'');}
 
@@ -332,30 +382,52 @@ event.target.value = formattedWords.join(' ');
 });
 
 function createZoneRow(start = 0, stop = 0, el = 0) {
-const tr = document.createElement('tr');
-tr.innerHTML = `
-<td><input inputmode="decimal" value="${formatNumber(start)}"></td>
-<td><input inputmode="decimal" value="${formatNumber(stop)}"></td>
-<td><input inputmode="decimal" value="${formatNumber(el)}"></td>
-<td><button>X</button></td>
-`;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+    <td><input inputmode="decimal" value="${formatNumber(start)}"></td>
+    <td><input inputmode="decimal" value="${formatNumber(stop)}"></td>
+    <td><input inputmode="decimal" value="${formatNumber(el)}"></td>
+    <td><button>X</button></td>
+    `;
+    
+    const inputs = tr.querySelectorAll('input');
+    const startInput = inputs[0];
+    const stopInput = inputs[1];
+    const elInput = inputs[2];
 
-Array.from(tr.querySelectorAll('input')).forEach(inp => {
-inp.addEventListener('blur', () => {
-  inp.value = Math.min(Math.max(parseFloat(inp.value) || 0, 0), 360);
-  drawZones();
-});
-inp.addEventListener('input', drawZones);
-});
+    const azHandler = () => {
+        validateZoneRow(tr);
+        drawZones();
+    };
 
-tr.querySelector('button').addEventListener('click', () => {
-tr.remove();
-drawZones();
-});
+    startInput.addEventListener('input', azHandler);
+    stopInput.addEventListener('input', azHandler);
 
-zonesBody.appendChild(tr);
-drawZones();
+    startInput.addEventListener('blur', () => {
+        startInput.value = formatNumber(Math.min(Math.max(parseFloat(startInput.value) || 0, 0), 360));
+        azHandler();
+    });
+    stopInput.addEventListener('blur', () => {
+        stopInput.value = formatNumber(Math.min(Math.max(parseFloat(stopInput.value) || 0, 0), 360));
+        azHandler();
+    });
+
+    elInput.addEventListener('input', drawZones);
+    elInput.addEventListener('blur', () => {
+        elInput.value = formatNumber(Math.min(Math.max(parseFloat(elInput.value) || 0, 0), 90));
+        drawZones();
+    });
+
+    tr.querySelector('button').addEventListener('click', () => {
+        tr.remove();
+        drawZones();
+    });
+
+    zonesBody.appendChild(tr);
+    drawZones();
+    validateZoneRow(tr);
 }
+
 
 document.getElementById('addBlockBtn').addEventListener('click',()=>createZoneRow());
 
@@ -723,7 +795,7 @@ async function createVesselCanvasForPDF() {
         const labelX = cx + Math.cos(midAngle) * R * 0.7;
         const labelY = cy + Math.sin(midAngle) * R * 0.7;
         ctx.fillStyle = 'black';
-        ctx.font = '12px sans-serif';
+        ctx.font = '28px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(`${Math.round(el)}°`, labelX, labelY);
