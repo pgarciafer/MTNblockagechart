@@ -182,41 +182,14 @@ h1 {
         width: 75%;
     }
 
-    #zonesTable thead {
-        display: none;
-    }
-    #zonesTable tr {
-        display: block;
-        margin-bottom: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        padding: 5px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
     #zonesTable td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #f0f0f0;
-        padding: 8px;
+        padding: 4px 2px;
     }
-    #zonesTable td:last-child {
-        border-bottom: none;
-        padding-top: 10px;
-        padding-bottom: 5px;
-        justify-content: flex-end;
-    }
-    #zonesTable td::before {
-        font-weight: bold;
-        color: #333;
-    }
-    #zonesTable td:nth-of-type(1)::before { content: "AZ Start"; }
-    #zonesTable td:nth-of-type(2)::before { content: "AZ Stop"; }
-    #zonesTable td:nth-of-type(3)::before { content: "EL"; }
     
     #zonesTable input {
-        width: 120px;
-        text-align: right;
+        width: 100%;
+        box-sizing: border-box;
+        text-align: center;
         font-size: 16px;
     }
     
@@ -528,7 +501,7 @@ function processImage(file,index){
         };
         img.src=e.target.result;
     };
-    reader.readAsDataURL(file);
+    reader.readAsURL(file);
 }
 
 function handleFiles(files){Array.from(files).slice(0,8).forEach((file,i)=>processImage(file,placementOrder[i]));}
