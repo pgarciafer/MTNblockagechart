@@ -6,7 +6,7 @@
 <title>Blockage Chart</title>
 <link rel="icon" href="https://raw.githubusercontent.com/pgarciafer/MTNblockagechart/main/logo1.png" type="image/png">
 <style>
-body { font-family: sans-serif; text-align:center; padding:20px; background:#f5f5f5; }
+body { --primary-color: #005A9C; font-family: sans-serif; text-align:center; padding:20px; background:#f5f5f5; }
 .card { max-width:950px; margin:auto; background:white; border-radius:12px; padding:18px; }
 #drop-area { 
     border:2px dashed #666; 
@@ -89,6 +89,22 @@ body { font-family: sans-serif; text-align:center; padding:20px; background:#f5f
 }
 
 button { padding:10px 20px; margin-top:10px; }
+#addBlockBtn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+#removeAllImagesBtn {
+    background-color: white;
+    color: #f87171;
+    border: 1px solid #f87171;
+    transition: background-color 0.2s, color 0.2s;
+}
+#removeAllImagesBtn:hover {
+    background-color: #f87171;
+    color: white;
+    cursor: pointer;
+}
 table{width:100%; border-collapse:collapse; margin-top:8px;}
 th, td{padding:6px; text-align:center; border-bottom:1px solid #e6eef8;}
 #zonesTable td button{background:#ef4444;color:white;border-radius:4px;border:none;padding:4px 6px;}
@@ -120,6 +136,7 @@ th, td{padding:6px; text-align:center; border-bottom:1px solid #e6eef8;}
 }
 h1 {
     margin: 0;
+    color: var(--primary-color);
 }
 
 .header-inputs {
@@ -140,6 +157,14 @@ h1 {
 @media screen and (max-width: 600px) {
     body { padding: 5px; }
     .card { padding: 10px; }
+
+    .main-header {
+        flex-direction: column;
+        gap: 5px;
+    }
+    h1 {
+        font-size: 1.8rem;
+    }
 
     .header-inputs {
         flex-direction: column;
@@ -244,7 +269,7 @@ h1 {
     <div class="button-container">
         <button id="addBlockBtn">Add Blockage Zone</button>
         <button id="generatePdf">Generate PDF</button>
-        <button id="removeAllImagesBtn" style="background-color:#f87171; color:white; border:none;">Remove All Images</button>
+        <button id="removeAllImagesBtn">Remove All Images</button>
     </div>
 
     <div id="drop-area">
