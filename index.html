@@ -6,20 +6,141 @@
 <title>Blockage Chart</title>
 <link rel="icon" href="https://raw.githubusercontent.com/pgarciafer/MTNblockagechart/main/logo1.png" type="image/png">
 <style>
-body { --primary-color: #005A9C; font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; text-align:center; padding:20px; background:#f5f5f5; }
-
-.card { max-width:950px; margin:auto; background:white; border-radius:12px; padding:18px; }
-#drop-area { 
-    border:2px dashed #666; 
-    border-radius:10px; 
-    padding:20px; 
-    background:#fff; 
-    margin-bottom:12px; 
-    cursor:pointer; 
-    box-sizing: border-box;
+:root {
+  --primary-color: #005A9C;
+  --primary-hover: #004a80;
+  --secondary-color: #6c757d;
+  --secondary-hover: #5a6268;
+  --danger-color: #dc3545;
+  --danger-hover: #c82333;
+  --success-color: #28a745;
+  --bg-color: #f8f9fa;
+  --container-bg: #ffffff;
+  --text-color: #212529;
+  --text-muted: #6c757d;
+  --border-color: #dee2e6;
+  --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  --input-focus-shadow: 0 0 0 0.25rem rgba(0, 90, 156, 0.25);
+  --input-invalid-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
 }
-#drop-area.highlight { border-color:#2196f3; background:#e3f2fd; }
-#drop-area p { margin:0; }
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--bg-color);
+  margin: 0;
+  padding: 24px;
+  min-height: 100vh;
+  color: var(--text-color);
+  text-align: center;
+}
+
+.card {
+  max-width: 950px;
+  margin: auto;
+  padding: 24px;
+  background: var(--container-bg);
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.main-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#pageLogo {
+    height: 60px;
+    display: block;
+}
+
+h1 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+label {
+  display: block;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: left;
+}
+
+input, select {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  font-size: 15px;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  background-color: #fff;
+  color: var(--text-color);
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: var(--input-focus-shadow);
+}
+
+.header-inputs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.header-inputs input {
+    padding: 10px; /* Use standard padding */
+}
+#vesselName { width: 220px; }
+#antennaLocation { width: 260px; }
+#dateInput { width: 150px; }
+#submittedBy { width: 220px; }
+
+
+#drop-area {
+  border: 2px dashed var(--border-color);
+  background: #fafcff;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  margin-bottom: 12px; 
+  box-sizing: border-box;
+}
+
+#drop-area:hover, #drop-area.highlight {
+  border-color: var(--primary-color);
+  background: #f0f6ff;
+}
+#drop-area p {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin: 0;
+}
 
 .content-wrapper {
     max-width: 650px;
@@ -30,7 +151,7 @@ body { --primary-color: #005A9C; font-family: Inter, -apple-system, BlinkMacSyst
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 12px;
     margin-top: 25px;
 }
@@ -52,63 +173,111 @@ body { --primary-color: #005A9C; font-family: Inter, -apple-system, BlinkMacSyst
     margin: 0;
     background: white;
     padding: 8px;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     position: relative;
     box-sizing: border-box;
 }
 
-.cell { 
-    background:#eee; 
-    display:flex; 
-    justify-content:center; 
-    align-items:center; 
-    overflow:hidden; 
-    position:relative; 
-    border-radius:6px; 
-    cursor:pointer; 
-    font-size: 2.5rem; 
+.cell {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+    position:relative;
+    border-radius:6px;
+    cursor:pointer;
+    font-size: 2.5rem;
     font-weight: bold;
-    color: #b0b0b0;
+    color: #ccc;
 }
-.cell img { 
-    width:100%; 
-    height:100%; 
-    object-fit:cover; 
+.cell img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
 }
 .cell:has(img) {
     font-size: 0;
+    border: 1px solid #aaa;
 }
 
-.center-cell { 
-    background:white; 
-    position:relative; 
+.center-cell {
+    background:white;
+    position:relative;
     cursor: default;
+    border: none;
 }
 
 .center-cell .cell-number {
-    display: none; 
+    display: none;
 }
 
-button { padding:10px 20px; margin-top:10px; }
-#addBlockBtn {
+button {
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background-color 0.15s ease-in-out, transform 0.1s ease;
+  position: relative;
+  -webkit-appearance: none;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.7;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+#addBlockBtn, #generatePdf {
     background-color: var(--primary-color);
     color: white;
     border: none;
 }
+#addBlockBtn:hover:not(:disabled), #generatePdf:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+
 #removeAllImagesBtn {
     background-color: white;
-    color: #f87171;
-    border: 1px solid #f87171;
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
     transition: background-color 0.2s, color 0.2s;
 }
-#removeAllImagesBtn:hover {
-    background-color: #f87171;
+#removeAllImagesBtn:hover:not(:disabled) {
+    background-color: var(--danger-color);
     color: white;
-    cursor: pointer;
 }
 table{width:100%; border-collapse:collapse; margin-top:8px;}
-th, td{padding:6px; text-align:center; border-bottom:1px solid #e6eef8;}
-#zonesTable td button{background:#ef4444;color:white;border-radius:4px;border:none;padding:4px 6px;}
+th, td{padding:8px 6px; text-align:center; border-bottom:1px solid var(--border-color);}
+th { color: var(--text-muted); font-size: 14px; }
+#zonesTable td button{
+  background: var(--danger-color);
+  color:white;
+  border-radius:4px;
+  border:none;
+  padding:4px 8px;
+  font-weight: bold;
+  font-size: 14px;
+}
+#zonesTable td button:hover {
+  background: var(--danger-hover);
+}
+#zonesTable input {
+  width: 100%;
+  padding: 6px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
 .zone-color{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;}
 .pdfTable { width:60%; border-collapse:collapse; margin: 0 auto 12px; }
 .pdfTable th, .pdfTable td { border:1px solid #aaa; padding:4px; text-align:center; }
@@ -125,56 +294,25 @@ th, td{padding:6px; text-align:center; border-bottom:1px solid #e6eef8;}
 }
 #overlayCanvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:2; }
 
-.main-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-bottom: 32px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid #dee2e6;
-}
-#pageLogo {
-    height: 60px;
-}
-h1 {
-    margin: 0;
-    color: var(--primary-color);
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: -0.5px;
-}
-
-.header-inputs {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-.header-inputs input {
-    padding: 6px 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-}
-#vesselName { width: 200px; }
-#antennaLocation { width: 250px; }
 
 @media screen and (max-width: 600px) {
-    body { padding: 5px; }
-    .card { padding: 10px; }
+    body { padding: 10px; }
+    .card { padding: 12px; }
 
     .main-header {
         flex-direction: column;
-        gap: 5px;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
     }
     h1 {
-        font-size: 1.8rem;
+        font-size: 1.5rem; /* 24px */
     }
 
     .header-inputs {
         flex-direction: column;
         align-items: center;
+        gap: 10px;
     }
     .header-inputs input {
         width: 100%;
@@ -185,17 +323,13 @@ h1 {
         width: 100%;
     }
     #dateInput {
-        width: 75%;
+        width: 85%;
     }
 
     #zonesTable td {
         padding: 4px 2px;
     }
-    
     #zonesTable input {
-        width: 100%;
-        box-sizing: border-box;
-        text-align: center;
         font-size: 16px;
     }
     
@@ -215,7 +349,23 @@ h1 {
 #blockagePanel:not(.has-zones) #zonesTable thead {
     display: none;
 }
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
 </style>
+
+
+
+
 </head>
 <body>
 <div class="card">
@@ -251,31 +401,31 @@ h1 {
         <button id="removeAllImagesBtn">Remove All Images</button>
     </div>
 
-    <label id="drop-area" for="fileElem">
+    <div id="drop-area">
       <p>📸 Drop up to 8 photos here or click to browse</p>
-    </label>
-    <input type="file" id="fileElem" accept="image/*" multiple style="display:none">
+      <input type="file" id="fileElem" accept="image/*" multiple class="visually-hidden">
+    </div>
 
     <div id="grid">
-      <label class="cell" id="cell-1" data-index="1" for="singleFileElem">8</label>
-      <label class="cell" id="cell-2" data-index="2" for="singleFileElem">1</label>
-      <label class="cell" id="cell-3" data-index="3" for="singleFileElem">2</label>
+      <div class="cell" id="cell-1" data-index="1">8</div>
+      <div class="cell" id="cell-2" data-index="2">1</div>
+      <div class="cell" id="cell-3" data-index="3">2</div>
       
-      <label class="cell" id="cell-4" data-index="4" for="singleFileElem">7</label>
+      <div class="cell" id="cell-4" data-index="4">7</div>
       <div class="cell center-cell" id="cell-5" data-index="5">
         <div id="vesselImage">
           <canvas id="overlayCanvas"></canvas>
         </div>
       </div>
-      <label class="cell" id="cell-6" data-index="6" for="singleFileElem">3</label>
+      <div class="cell" id="cell-6" data-index="6">3</div>
       
-      <label class="cell" id="cell-7" data-index="7" for="singleFileElem">6</label>
-      <label class="cell" id="cell-8" data-index="8" for="singleFileElem">5</label>
-      <label class="cell" id="cell-9" data-index="9" for="singleFileElem">4</label>
+      <div class="cell" id="cell-7" data-index="7">6</div>
+      <div class="cell" id="cell-8" data-index="8">5</div>
+      <div class="cell" id="cell-9" data-index="9">4</div>
     </div>
   </div>
 
-  <input type="file" id="singleFileElem" accept="image/*" style="display:none">
+  <input type="file" id="singleFileElem" accept="image/*" class="visually-hidden">
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -479,36 +629,49 @@ const fileInput=document.getElementById('fileElem');
 dropArea.addEventListener(e,ev=>{ev.preventDefault();ev.stopPropagation();});
 });
 ["dragenter","dragover"].forEach(e=>dropArea.addEventListener(e,()=>dropArea.classList.add("highlight")));
-["dragleave","drop"].GforEach(e=>dropArea.addEventListener(e,()=>dropArea.classList.remove("highlight")));
+["dragleave","drop"].forEach(e=>dropArea.addEventListener(e,()=>dropArea.classList.remove("highlight")));
 dropArea.addEventListener("drop",e=>handleFiles(e.dataTransfer.files));
-// CHANGED: Removed the problematic .click() listener
-// dropArea.addEventListener("click",()=>fileInput.click()); 
+dropArea.addEventListener("click",()=>fileInput.click());
 fileInput.addEventListener("change",()=>handleFiles(fileInput.files));
 
 const placementOrder=[2,3,6,9,8,7,4,1];
 
-function processImage(file,index){
-    const reader=new FileReader();
-    reader.onload=e=>{
-        const img=new Image();
-        img.onload=()=>{
-            const canvas=document.createElement('canvas');
-            const ctx=canvas.getContext('2d');
-            const maxSize=600;
-            let {width,height}=img;
-            if(width>height){if(width>maxSize){height*=maxSize/width;width=maxSize;}}
-            else{if(height>maxSize){width*=maxSize/height;height=maxSize;}}
-            canvas.width=width; canvas.height=height; ctx.drawImage(img,0,0,width,height);
-            const compressed=canvas.toDataURL('image/jpeg',0.7);
-            const cell=document.getElementById(`cell-${index}`);
-            cell.innerHTML=""; 
-            const imgEl=document.createElement('img'); 
-            imgEl.src=compressed; 
-            cell.appendChild(imgEl);
-        };
-        img.src=e.target.result;
+function processImage(file, index) {
+    const objectURL = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const maxSize = 600;
+        let { width, height } = img;
+        if (width > height) {
+            if (width > maxSize) {
+                height *= maxSize / width;
+                width = maxSize;
+            }
+        } else {
+            if (height > maxSize) {
+                width *= maxSize / height;
+                height = maxSize;
+            }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+        const compressed = canvas.toDataURL('image/jpeg', 0.7);
+        const cell = document.getElementById(`cell-${index}`);
+        cell.innerHTML = "";
+        const imgEl = document.createElement('img');
+        imgEl.src = compressed;
+        cell.appendChild(imgEl);
+        URL.revokeObjectURL(objectURL); // Clean up
     };
-    reader.readAsURL(file);
+    img.onerror = () => {
+        console.error("Error processing image. It might be an unsupported format.");
+        alert("Could not load image. Please try a different photo.");
+        URL.revokeObjectURL(objectURL); // Clean up
+    };
+    img.src = objectURL;
 }
 
 function handleFiles(files){Array.from(files).slice(0,8).forEach((file,i)=>processImage(file,placementOrder[i]));}
@@ -520,8 +683,7 @@ let currentCellIndex = null;
 
 function openFilePickerForCell(index) {
     currentCellIndex = index;
-    // CHANGED: Removed the problematic .click() call
-    // singleFileElem.click();
+    singleFileElem.click();
 }
 
 singleFileElem.addEventListener('change', () => {
@@ -541,15 +703,11 @@ function setupCellClickListeners() {
         cell.addEventListener('click', handleCellClick);
 
         function handleCellClick(event) {
-            // This logic still runs, but the <label> is what *really*
-            // opens the file picker. This function just sets the
-            // currentCellIndex *before* the picker opens.
             if (cell.querySelector('img')) {
                 if (window.confirm("This cell already has a picture. Do you want to replace it? Click 'Cancel' to remove the image.")) {
                     openFilePickerForCell(index);
                 } else {
                     cell.innerHTML = initialNumber;
-                    event.preventDefault(); // Prevent file picker from opening if user cancels
                 }
             } else {
                 openFilePickerForCell(index);
