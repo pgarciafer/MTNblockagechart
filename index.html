@@ -251,27 +251,27 @@ h1 {
         <button id="removeAllImagesBtn">Remove All Images</button>
     </div>
 
-    <div id="drop-area">
+    <label id="drop-area" for="fileElem">
       <p>📸 Drop up to 8 photos here or click to browse</p>
-      <input type="file" id="fileElem" accept="image/*" multiple style="display:none">
-    </div>
+    </label>
+    <input type="file" id="fileElem" accept="image/*" multiple style="display:none">
 
     <div id="grid">
-      <div class="cell" id="cell-1" data-index="1">8</div>
-      <div class="cell" id="cell-2" data-index="2">1</div>
-      <div class="cell" id="cell-3" data-index="3">2</div>
+      <label class="cell" id="cell-1" data-index="1" for="singleFileElem">8</label>
+      <label class="cell" id="cell-2" data-index="2" for="singleFileElem">1</label>
+      <label class="cell" id="cell-3" data-index="3" for="singleFileElem">2</label>
       
-      <div class="cell" id="cell-4" data-index="4">7</div>
+      <label class="cell" id="cell-4" data-index="4" for="singleFileElem">7</label>
       <div class="cell center-cell" id="cell-5" data-index="5">
         <div id="vesselImage">
           <canvas id="overlayCanvas"></canvas>
         </div>
       </div>
-      <div class="cell" id="cell-6" data-index="6">3</div>
+      <label class="cell" id="cell-6" data-index="6" for="singleFileElem">3</label>
       
-      <div class="cell" id="cell-7" data-index="7">6</div>
-      <div class="cell" id="cell-8" data-index="8">5</div>
-      <div class="cell" id="cell-9" data-index="9">4</div>
+      <label class="cell" id="cell-7" data-index="7" for="singleFileElem">6</label>
+      <label class="cell" id="cell-8" data-index="8" for="singleFileElem">5</label>
+      <label class="cell" id="cell-9" data-index="9" for="singleFileElem">4</label>
     </div>
   </div>
 
@@ -479,9 +479,10 @@ const fileInput=document.getElementById('fileElem');
 dropArea.addEventListener(e,ev=>{ev.preventDefault();ev.stopPropagation();});
 });
 ["dragenter","dragover"].forEach(e=>dropArea.addEventListener(e,()=>dropArea.classList.add("highlight")));
-["dragleave","drop"].forEach(e=>dropArea.addEventListener(e,()=>dropArea.classList.remove("highlight")));
+["dragleave","drop"].GforEach(e=>dropArea.addEventListener(e,()=>dropArea.classList.remove("highlight")));
 dropArea.addEventListener("drop",e=>handleFiles(e.dataTransfer.files));
-dropArea.addEventListener("click",()=>fileInput.click());
+// CHANGED: Removed the problematic .click() listener
+// dropArea.addEventListener("click",()=>fileInput.click()); 
 fileInput.addEventListener("change",()=>handleFiles(fileInput.files));
 
 const placementOrder=[2,3,6,9,8,7,4,1];
@@ -519,7 +520,8 @@ let currentCellIndex = null;
 
 function openFilePickerForCell(index) {
     currentCellIndex = index;
-    singleFileElem.click();
+    // CHANGED: Removed the problematic .click() call
+    // singleFileElem.click();
 }
 
 singleFileElem.addEventListener('change', () => {
@@ -539,11 +541,15 @@ function setupCellClickListeners() {
         cell.addEventListener('click', handleCellClick);
 
         function handleCellClick(event) {
+            // This logic still runs, but the <label> is what *really*
+            // opens the file picker. This function just sets the
+            // currentCellIndex *before* the picker opens.
             if (cell.querySelector('img')) {
                 if (window.confirm("This cell already has a picture. Do you want to replace it? Click 'Cancel' to remove the image.")) {
                     openFilePickerForCell(index);
                 } else {
                     cell.innerHTML = initialNumber;
+                    event.preventDefault(); // Prevent file picker from opening if user cancels
                 }
             } else {
                 openFilePickerForCell(index);
