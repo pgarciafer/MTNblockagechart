@@ -88,7 +88,6 @@ outline: none;
 border-color: var(--primary-color);
 box-shadow: var(--input-focus-shadow);
 }
-/* --- IMPROVEMENT (Point 2): Refactored header inputs for labels and hints --- /
 .header-inputs {
 display: flex;
 flex-wrap: wrap;
@@ -118,7 +117,6 @@ margin-top: 4px;
 #antennaLocation { width: 260px; }
 #dateInput { width: 150px; }
 #submittedBy { width: 220px; }
-/ --- End Improvement --- */
 #drop-area {
 border: 2px dashed var(--border-color);
 background: #fafcff;
@@ -201,7 +199,6 @@ object-fit:cover;
 font-size: 0;
 border: 1px solid #aaa;
 }
-/* */
 .cell[role="button"]:focus {
 outline: none;
 box-shadow: 0 0 0 3px var(--primary-color);
@@ -519,7 +516,6 @@ const ctx = overlayCtx;
 const size = overlayCanvas.width;
 const cx = size / 2;
 const cy = size / 2;
-// IMPROVEMENT (Point 5): Use global constant
 const R = size * ZONE_RADIUS_SCALE;
 
 ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
@@ -579,7 +575,6 @@ event.target.value = formattedWords.join(' ');
 });
 function createZoneRow(start = 0, stop = 0, el = 0) {
 const tr = document.createElement('tr');
-// IMPROVEMENT (Point 4): Added aria-label to the remove button
 tr.innerHTML = &lt;td&gt;&lt;input inputmode=&quot;decimal&quot; value=&quot;${formatNumber(start)}&quot;&gt;&lt;/td&gt; &lt;td&gt;&lt;input inputmode=&quot;decimal&quot; value=&quot;${formatNumber(stop)}&quot;&gt;&lt;/td&gt; &lt;td&gt;&lt;input inputmode=&quot;decimal&quot; value=&quot;${formatNumber(el)}&quot;&gt;&lt;/td&gt; &lt;td&gt;&lt;button aria-label=&quot;Remove zone&quot;&gt;X&lt;/button&gt;&lt;/td&gt;;
 const inputs = tr.querySelectorAll(&#39;input&#39;);
 inputs.forEach(input =&gt; input.addEventListener(&#39;focus&#39;, event =&gt; event.target.select()));
@@ -614,14 +609,12 @@ elInput.addEventListener(&#39;blur&#39;, () =&gt; {
 tr.querySelector(&#39;button&#39;).addEventListener(&#39;click&#39;, () =&gt; {
     tr.remove();
     drawZones();
-    // IMPROVEMENT (Point 4): Announce zone removal
     announceToScreenReader(&quot;Blockage zone removed.&quot;);
 });
 
 zonesBody.appendChild(tr);
 drawZones();
 validateZoneRow(tr);
-// IMPROVEMENT (Point 4): Announce zone addition
 announceToScreenReader(&quot;Blockage zone added.&quot;);
 
 }
@@ -638,7 +631,6 @@ dropArea.addEventListener("drop",e=>handleFiles(e.dataTransfer.files));
 fileInput.addEventListener("change",()=>handleFiles(fileInput.files));
 const placementOrder=[2,3,6,9,8,7,4,1];
 function processImage(file, index) {
-// IMPROVEMENT (Point 2): Check file type, although handleFiles should pre-filter
 if (!file.type.startsWith('image/')) {
 console.warn(Skipping non-image file: ${file.name});
 return;
@@ -678,7 +670,6 @@ reader.onload = function(e) {
             const imgEl = document.createElement(&#39;img&#39;);
             imgEl.src = compressedDataUrl;
             cell.appendChild(imgEl);
-            // IMPROVEMENT (Point 4): Announce image addition
             announceToScreenReader(`Image added to cell ${cell.dataset.defaultNumber}.`);
         }
     };
@@ -686,7 +677,6 @@ reader.onload = function(e) {
         console.error(&quot;Error loading image from data URL. The file might be corrupted or in an unsupported format.&quot;);
         alert(&quot;Could not load image. Please try a different photo.&quot;);
     };
-    // The result of the FileReader is the data URL
     img.src = e.target.result;
 };
 
@@ -695,12 +685,10 @@ reader.onerror = function() {
     alert(&quot;Failed to read the selected file. Please try again.&quot;);
 };
 
-// Start reading the file as a Data URL
 reader.readAsDataURL(file);
 
 }
 function handleFiles(files) {
-// IMPROVEMENT (Point 2): Filter for images and provide user feedback
 const allFiles = Array.from(files);
 const imageFiles = allFiles.filter(file => file.type.startsWith('image/'));
 const nonImageCount = allFiles.length - imageFiles.length;
@@ -736,7 +724,6 @@ singleFileElem.click();
 }
 singleFileElem.addEventListener('change', () => {
 if (singleFileElem.files.length > 0 && currentCellIndex) {
-// IMPROVEMENT (Point 2): Check file type for single upload
 const file = singleFileElem.files[0];
 if (file.type.startsWith('image/')) {
 processImage(file, currentCellIndex);
@@ -750,15 +737,14 @@ function setupCellClickListeners() {
 const cells = document.querySelectorAll('.cell:not(.center-cell)');
 cells.forEach(cell => {
 const index = cell.dataset.index;
-    // Use a named function for easier add/remove if needed, though not strictly required here
+    // This function is defined newly for each cell, which is fine
+    // and correctly captures `cell` and `index` in its closure.
     function handleCellClick(event) {
         if (cell.querySelector(&#39;img&#39;)) {
             if (window.confirm(&quot;This cell already has a picture. Do you want to replace it? Click &#39;Cancel&#39; to remove the image.&quot;)) {
                 openFilePickerForCell(index);
             } else {
-                // IMPROVEMENT (Point 5): Use data-default-number
                 cell.innerHTML = cell.dataset.defaultNumber || &#39;&#39;;
-                // IMPROVEMENT (Point 4): Announce image removal
                 announceToScreenReader(`Image removed from cell ${cell.dataset.defaultNumber}.`);
             }
         } else {
@@ -766,13 +752,17 @@ const index = cell.dataset.index;
         }
     }
 
-    cell.removeEventListener(&#39;click&#39;, handleCellClick); // Prevent double-listeners on reload
+    // We remove any *old* listener (if setup was run multiple times)
+    // Note: This is tricky and often doesn&#39;t work as expected, but it&#39;s
+    // also harmless in this specific case. A better pattern would be
+    // to define handleCellClick *outside* the loop, but that&#39;s a bigger refactor.
+    // The original code had this, so we&#39;ll keep it.
+    cell.removeEventListener(&#39;click&#39;, handleCellClick); 
     cell.addEventListener(&#39;click&#39;, handleCellClick);
 
-    // IMPROVEMENT (Point 4): Add keyboard accessibility
     cell.addEventListener(&#39;keydown&#39;, (event) =&gt; {
         if (event.key === &#39;Enter&#39; || event.key === &#39; &#39;) {
-            event.preventDefault(); // Stop spacebar from scrolling page
+            event.preventDefault(); 
             handleCellClick(event);
         }
     });
@@ -782,17 +772,14 @@ const index = cell.dataset.index;
 // -------------------------------------------------------------
 // --------- Remove All Images Function -----------
 function removeAllImages() {
-// IMPROVEMENT (Point 2): Add confirmation dialog
 if (!window.confirm("Are you sure you want to remove all images? This cannot be undone.")) {
 return;
 }
 const cells = document.querySelectorAll(&#39;.cell:not(.center-cell)&#39;);
 cells.forEach(cell =&gt; {
-    // IMPROVEMENT (Point 5): Use data-default-number for simpler logic
     cell.innerHTML = cell.dataset.defaultNumber || &#39;&#39;;
 });
 
-// IMPROVEMENT (Point 4): Announce action completion
 announceToScreenReader(&quot;All images have been removed.&quot;);
 
 }
@@ -800,10 +787,16 @@ document.getElementById('removeAllImagesBtn').addEventListener('click', removeAl
 // ------------------------------------------------
 // --------- PDF Generation (Merged + Fixed) -----------
 document.getElementById('generatePdf').addEventListener('click', async () => {
-// IMPROVEMENT (Point 2): Add loading state
 const btn = document.getElementById('generatePdf');
 btn.disabled = true;
 btn.textContent = 'Generating PDF...';
+// --- IMPROVEMENT: Check if libraries are loaded ---
+if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+alert("PDF generation libraries (html2canvas, jspdf) failed to load. Please check your internet connection and try refreshing the page.");
+btn.disabled = false;
+btn.textContent = 'Generate PDF';
+return;
+}
   try {
     const pdfContainer = document.createElement('div');
     pdfContainer.style.width = '720px';
@@ -935,7 +928,15 @@ async function createVesselCanvasForPDF() {
 const img = new Image();
 img.crossOrigin = "anonymous";
 img.src = 'https://pgarciafer.github.io/satcalc/IMG_0585.PNG';
-await new Promise(resolve => img.onload = resolve);
+// --- IMPROVEMENT: Added error handling to the image loading promise ---
+await new Promise((resolve, reject) =&gt; {
+    img.onload = resolve;
+    img.onerror = (err) =&gt; {
+        console.error(&quot;Failed to load vessel image for PDF.&quot;, err);
+        reject(new Error(&quot;Failed to load vessel image for PDF. Check network or CORS.&quot;));
+    };
+});
+
 const width = img.naturalWidth;
 const height = img.naturalHeight;
 
@@ -949,7 +950,6 @@ ctx.drawImage(img, 0, 0, width, height);
 const size = Math.min(width, height);
 const cx = width / 2;
 const cy = height / 2;
-// IMPROVEMENT (Point 5): Use global constant
 const R = size * ZONE_RADIUS_SCALE;
 
 Array.from(zonesBody.querySelectorAll(&#39;tr&#39;)).forEach(row =&gt; {
@@ -993,7 +993,6 @@ return canvas;
 
 }
 const gridClone = document.getElementById(&#39;grid&#39;).cloneNode(true);
-// IMPROVEMENT: Remove keyboard attributes from clone to prevent PDF issues
 gridClone.querySelectorAll(&#39;[role=&quot;button&quot;]&#39;).forEach(el =&gt; {
     el.removeAttribute(&#39;role&#39;);
     el.removeAttribute(&#39;tabindex&#39;);
@@ -1011,15 +1010,11 @@ pdfContainer.appendChild(gridClone);
 document.body.appendChild(pdfContainer);
 
 const canvas = await html2canvas(pdfContainer, {
-scale: 2,
-useCORS: true,
-ignoreElements: (element) =&gt; {
-    return false;
-},
-onrendered: function(canvas) {
-}
-
+    scale: 2,
+    useCORS: true
+    // --- IMPROVEMENT: Removed obsolete &#39;onrendered&#39; callback ---
 });
+
 const imgData = canvas.toDataURL(&#39;image/jpeg&#39;,0.95);
 const {jsPDF} = window.jspdf;
 const pdf = new jsPDF(&#39;p&#39;,&#39;mm&#39;,&#39;a4&#39;);
@@ -1035,14 +1030,14 @@ const fileName = `${vesselNameVal}_BlockageChart_${antennaLocVal}_${cleanDate}.p
   .replace(/[\/\\?%*:|&quot;&lt;&gt;]/g, &#39;_&#39;);
 
 pdf.save(fileName);
+
 pdfContainer.remove();
 
 } catch(err) {
-// IMPROVEMENT (Point 5): Better error handling
 console.error("PDF generation failed:", err);
 alert("PDF generation failed. Please check the browser console for more details.");
 } finally {
-// IMPROVEMENT (Point 2): Reset button state
+// --- IMPROVEMENT: Always reset button state ---
 btn.disabled = false;
 btn.textContent = 'Generate PDF';
 }
@@ -1070,7 +1065,6 @@ let formattedWords = words.map(word =&gt; {
 event.target.value = prefix + formattedWords.join(&#39;&#39;);
 
 });
-// IMPROVEMENT (Point 3): Use debounce for the resize listener
 window.addEventListener('resize', debounce(resizeOverlay, 250));
 window.addEventListener('DOMContentLoaded',() => {
 resizeOverlay();
