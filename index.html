@@ -7,621 +7,625 @@
 <link rel="icon" href="https://raw.githubusercontent.com/pgarciafer/MTNblockagechart/main/logo1.png" type="image/png">
 <style>
 :root {
-  --primary-color: #005A9C;
-  --primary-hover: #004a80;
-  --secondary-color: #6c757d;
-  --secondary-hover: #5a6268;
-  --danger-color: #dc3545;
-  --danger-hover: #c82333;
-  --success-color: #28a745;
-  --bg-color: #f8f9fa;
-  --container-bg: #ffffff;
-  --text-color: #212529;
-  --text-muted: #6c757d;
-  --border-color: #dee2e6;
-  --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  --input-focus-shadow: 0 0 0 0.25rem rgba(0, 90, 156, 0.25);
-  --input-invalid-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+--primary-color: #005A9C;
+--primary-hover: #004a80;
+--secondary-color: #6c757d;
+--secondary-hover: #5a6268;
+--danger-color: #dc3545;
+--danger-hover: #c82333;
+--success-color: #28a745;
+--bg-color: #f8f9fa;
+--container-bg: #ffffff;
+--text-color: #212529;
+--text-muted: #6c757d;
+--border-color: #dee2e6;
+--card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+--input-focus-shadow: 0 0 0 0.25rem rgba(0, 90, 156, 0.25);
+--input-invalid-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
 }
-
 *, *::before, *::after {
-  box-sizing: border-box;
+box-sizing: border-box;
 }
-
 body {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: var(--bg-color);
-  margin: 0;
-  padding: 24px;
-  min-height: 100vh;
-  color: var(--text-color);
-  text-align: center;
+font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+background-color: var(--bg-color);
+margin: 0;
+padding: 24px;
+min-height: 100vh;
+color: var(--text-color);
+text-align: center;
 }
-
 .card {
-  max-width: 950px;
-  margin: auto;
-  padding: 24px;
-  background: var(--container-bg);
-  border-radius: 8px;
-  box-shadow: var(--card-shadow);
-  border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
+max-width: 950px;
+margin: auto;
+padding: 24px;
+background: var(--container-bg);
+border-radius: 8px;
+box-shadow: var(--card-shadow);
+border: 1px solid var(--border-color);
+transition: all 0.3s ease;
 }
-
 .main-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-bottom: 32px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid var(--border-color);
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 16px;
+margin-bottom: 32px;
+padding-bottom: 24px;
+border-bottom: 1px solid var(--border-color);
 }
-
 #pageLogo {
-    height: 60px;
-    display: block;
+height: 60px;
+display: block;
 }
-
 h1 {
-    margin: 0;
-    color: var(--primary-color);
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: -0.5px;
+margin: 0;
+color: var(--primary-color);
+font-size: 24px;
+font-weight: 600;
+letter-spacing: -0.5px;
 }
-
 label {
-  display: block;
-  margin-top: 16px;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: var(--text-muted);
-  font-size: 14px;
-  text-align: left;
+display: block;
+margin-top: 16px;
+margin-bottom: 8px;
+font-weight: 500;
+color: var(--text-muted);
+font-size: 14px;
+text-align: left;
 }
-
 input, select {
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  font-size: 15px;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  background-color: #fff;
-  color: var(--text-color);
+padding: 10px;
+border-radius: 6px;
+border: 1px solid var(--border-color);
+font-size: 15px;
+transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+background-color: #fff;
+color: var(--text-color);
 }
-
 input:focus, select:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: var(--input-focus-shadow);
+outline: none;
+border-color: var(--primary-color);
+box-shadow: var(--input-focus-shadow);
 }
-
+/* --- IMPROVEMENT (Point 2): Refactored header inputs for labels and hints --- /
 .header-inputs {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
+display: flex;
+flex-wrap: wrap;
+justify-content: center;
+gap: 16px;
+margin-bottom: 20px;
 }
-.header-inputs input {
-    padding: 10px; /* Use standard padding */
+.input-group {
+display: flex;
+flex-direction: column;
+text-align: left;
+}
+.input-group label {
+margin-top: 0;
+margin-bottom: 4px;
+font-size: 13px;
+}
+.input-group input {
+margin: 0;
+}
+.input-hint {
+font-size: 12px;
+color: var(--text-muted);
+margin-top: 4px;
 }
 #vesselName { width: 220px; }
 #antennaLocation { width: 260px; }
 #dateInput { width: 150px; }
 #submittedBy { width: 220px; }
-
-
+/ --- End Improvement --- */
 #drop-area {
-  border: 2px dashed var(--border-color);
-  background: #fafcff;
-  padding: 20px;
-  text-align: center;
-  cursor: pointer;
-  border-radius: 12px;
-  transition: all 0.3s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 120px;
-  margin-bottom: 12px; 
-  box-sizing: border-box;
+border: 2px dashed var(--border-color);
+background: #fafcff;
+padding: 20px;
+text-align: center;
+cursor: pointer;
+border-radius: 12px;
+transition: all 0.3s;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+min-height: 120px;
+margin-bottom: 12px;
+box-sizing: border-box;
 }
-
 #drop-area:hover, #drop-area.highlight {
-  border-color: var(--primary-color);
-  background: #f0f6ff;
+border-color: var(--primary-color);
+background: #f0f6ff;
 }
 #drop-area p {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--text-muted);
-  margin: 0;
+font-size: 16px;
+font-weight: 500;
+color: var(--text-muted);
+margin: 0;
 }
-
 .content-wrapper {
-    max-width: 650px;
-    margin: 20px auto 0;
+max-width: 650px;
+margin: 20px auto 0;
+}
+.button-container {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 12px;
+margin-bottom: 12px;
+margin-top: 25px;
+}
+.button-container button {
+width: 60%;
+max-width: 350px;
+margin-top: 0;
+}
+#grid {
+width: 100%;
+height: auto;
+aspect-ratio: 1 / 1;
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+grid-template-rows: repeat(3, 1fr);
+gap: 8px;
+margin: 0;
+background: white;
+padding: 8px;
+border: 1px solid var(--border-color);
+border-radius: 8px;
+position: relative;
+box-sizing: border-box;
+}
+.cell {
+background: var(--bg-color);
+border: 1px solid var(--border-color);
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
+position:relative;
+border-radius:6px;
+cursor:pointer;
+font-size: 2.5rem;
+font-weight: bold;
+color: #ccc;
+}
+.cell img {
+width:100%;
+height:100%;
+object-fit:cover;
+}
+.cell:has(img) {
+font-size: 0;
+border: 1px solid #aaa;
+}
+/* */
+.cell[role="button"]:focus {
+outline: none;
+box-shadow: 0 0 0 3px var(--primary-color);
+}
+.center-cell {
+background:white;
+position:relative;
+cursor: default;
+border: none;
+}
+.center-cell .cell-number {
+display: none;
+}
+button {
+padding: 10px 16px;
+border: 1px solid transparent;
+border-radius: 6px;
+cursor: pointer;
+font-size: 15px;
+font-weight: 500;
+transition: background-color 0.15s ease-in-out, transform 0.1s ease, opacity 0.15s ease, color 0.15s ease;
+position: relative;
+-webkit-appearance: none;
+}
+button:disabled {
+background-color: #ccc;
+cursor: not-allowed;
+transform: none;
+opacity: 0.7;
+}
+button:active:not(:disabled) {
+transform: scale(0.98);
+}
+#addBlockBtn, #generatePdf {
+background-color: var(--primary-color);
+color: white;
+border: none;
+}
+#addBlockBtn:hover:not(:disabled), #generatePdf:hover:not(:disabled) {
+background-color: var(--primary-hover);
+}
+#removeAllImagesBtn {
+background-color: white;
+color: var(--danger-color);
+border: 1px solid var(--danger-color);
+transition: background-color 0.2s, color 0.2s;
+}
+#removeAllImagesBtn:hover:not(:disabled) {
+background-color: var(--danger-color);
+color: white;
+}
+table{width:100%; border-collapse:collapse; margin-top:8px;}
+th, td{padding:8px 6px; text-align:center; border-bottom:1px solid var(--border-color);}
+th { color: var(--text-muted); font-size: 14px; }
+#zonesTable td button{
+background: var(--danger-color);
+color:white;
+border-radius:4px;
+border:none;
+padding:4px 8px;
+font-weight: bold;
+font-size: 14px;
+}
+#zonesTable td button:hover {
+background: var(--danger-hover);
+}
+#zonesTable input {
+width: 100%;
+padding: 6px;
+text-align: center;
+box-sizing: border-box;
+}
+.zone-color{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;}
+.pdfTable { width:60%; border-collapse:collapse; margin: 0 auto 12px; }
+.pdfTable th, .pdfTable td { border:1px solid #aaa; padding:4px; text-align:center; }
+#vesselImage {
+position: relative;
+width: 100%;
+height: 100%;
+background-image: url('https://pgarciafer.github.io/satcalc/IMG_0585.PNG');
+background-size: contain;
+background-position: center;
+background-repeat: no-repeat;
+filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));
+}
+#overlayCanvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:2; }
+@media screen and (max-width: 600px) {
+body { padding: 10px; }
+.card { padding: 12px; }
+.main-header {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+}
+h1 {
+    font-size: 1.5rem; /* 24px */
 }
 
-.button-container {
-    display: flex;
+.header-inputs {
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    margin-bottom: 12px;
-    margin-top: 25px;
+}
+.input-group {
+    width: 100%;
+    box-sizing: border-box;
+}
+.input-group input {
+    width: 100%;
+}
+
+#vesselName, #antennaLocation, #submittedBy, #dateInput {
+    width: 100%;
+}
+
+#zonesTable td {
+    padding: 4px 2px;
+}
+#zonesTable input {
+    font-size: 16px;
 }
 
 .button-container button {
-    width: 60%;
-    max-width: 350px;
-    margin-top: 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 #grid {
     width: 100%;
     height: auto;
     aspect-ratio: 1 / 1;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: 8px;
-    margin: 0;
-    background: white;
-    padding: 8px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    position: relative;
-    box-sizing: border-box;
 }
 
-.cell {
-    background: var(--bg-color);
-    border: 1px solid var(--border-color);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    overflow:hidden;
-    position:relative;
-    border-radius:6px;
-    cursor:pointer;
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #ccc;
 }
-.cell img {
-    width:100%;
-    height:100%;
-    object-fit:cover;
-}
-.cell:has(img) {
-    font-size: 0;
-    border: 1px solid #aaa;
-}
-
-.center-cell {
-    background:white;
-    position:relative;
-    cursor: default;
-    border: none;
-}
-
-.center-cell .cell-number {
-    display: none;
-}
-
-button {
-  padding: 10px 16px;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 15px;
-  font-weight: 500;
-  transition: background-color 0.15s ease-in-out, transform 0.1s ease;
-  position: relative;
-  -webkit-appearance: none;
-}
-
-button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  transform: none;
-  opacity: 0.7;
-}
-
-button:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-#addBlockBtn, #generatePdf {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-}
-#addBlockBtn:hover:not(:disabled), #generatePdf:hover:not(:disabled) {
-  background-color: var(--primary-hover);
-}
-
-#removeAllImagesBtn {
-    background-color: white;
-    color: var(--danger-color);
-    border: 1px solid var(--danger-color);
-    transition: background-color 0.2s, color 0.2s;
-}
-#removeAllImagesBtn:hover:not(:disabled) {
-    background-color: var(--danger-color);
-    color: white;
-}
-table{width:100%; border-collapse:collapse; margin-top:8px;}
-th, td{padding:8px 6px; text-align:center; border-bottom:1px solid var(--border-color);}
-th { color: var(--text-muted); font-size: 14px; }
-#zonesTable td button{
-  background: var(--danger-color);
-  color:white;
-  border-radius:4px;
-  border:none;
-  padding:4px 8px;
-  font-weight: bold;
-  font-size: 14px;
-}
-#zonesTable td button:hover {
-  background: var(--danger-hover);
-}
-#zonesTable input {
-  width: 100%;
-  padding: 6px;
-  text-align: center;
-  box-sizing: border-box;
-}
-
-.zone-color{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;}
-.pdfTable { width:60%; border-collapse:collapse; margin: 0 auto 12px; }
-.pdfTable th, .pdfTable td { border:1px solid #aaa; padding:4px; text-align:center; }
-
-#vesselImage {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background-image: url('https://pgarciafer.github.io/satcalc/IMG_0585.PNG');
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));
-}
-#overlayCanvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:2; }
-
-
-@media screen and (max-width: 600px) {
-    body { padding: 10px; }
-    .card { padding: 12px; }
-
-    .main-header {
-        flex-direction: column;
-        gap: 10px;
-        margin-bottom: 20px;
-        padding-bottom: 20px;
-    }
-    h1 {
-        font-size: 1.5rem; /* 24px */
-    }
-
-    .header-inputs {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-    }
-    .header-inputs input {
-        width: 100%;
-        box-sizing: border-box;
-    }
-    
-    #vesselName, #antennaLocation, #submittedBy {
-        width: 100%;
-    }
-    #dateInput {
-        width: 85%;
-    }
-
-    #zonesTable td {
-        padding: 4px 2px;
-    }
-    #zonesTable input {
-        font-size: 16px;
-    }
-    
-    .button-container button {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    #grid {
-        width: 100%;
-        height: auto;
-        aspect-ratio: 1 / 1;
-    }
-}
-
 #blockagePanel:not(.has-zones) > label,
 #blockagePanel:not(.has-zones) #zonesTable thead {
-    display: none;
+display: none;
 }
-
 .visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
+position: absolute;
+width: 1px;
+height: 1px;
+padding: 0;
+margin: -1px;
+overflow: hidden;
+clip: rect(0, 0, 0, 0);
+white-space: nowrap;
+border: 0;
 }
 </style>
-
-
-
-
 </head>
 <body>
 <div class="card">
-  <div class="main-header">
-    <img src="https://raw.githubusercontent.com/pgarciafer/MTNblockagechart/main/logo.png" alt="MTN Logo" id="pageLogo">
-    <h1>Blockage Chart</h1>
-  </div>
-
-  <div class="header-inputs">
-    <input id="vesselName" type="text" placeholder="3LC_VesselName">
-    <input id="antennaLocation" type="text" placeholder="Antenna & Location">
-    <input id="dateInput" type="date">  
-    <input id="submittedBy" type="text" placeholder="Tech Name">
-  </div>
-
-  <div class="content-wrapper">
-    <div class="controls">
-      <div class="panel" id="blockagePanel">
-        <label>Blockage Zones (AZ Start / AZ Stop in degrees)</label>
-        <table id="zonesTable">
-          <thead><tr><th>AZ Start</th><th>AZ Stop</th><th>EL</th><th></th></tr></thead>
-          <tbody id="zonesBody"></tbody>
-        </table>
-        <div style="margin-top:8px;font-size:13px;color:#536878">
-          Add zones and they will be drawn over the center vessel. They are also included in the PDF.
-        </div>
-      </div>
-    </div>
-
-    <div class="button-container">
-        <button id="addBlockBtn">Add Blockage Zone</button>
-        <button id="generatePdf">Generate PDF</button>
-        <button id="removeAllImagesBtn">Remove All Images</button>
-    </div>
-
-    <label for="fileElem" id="drop-area">
-      <p>📸 Drop up to 8 photos here or click to browse</p>
-    </label>
-    <input type="file" id="fileElem" accept="image/*" multiple class="visually-hidden">
-
-    <div id="grid">
-      <div class="cell" id="cell-1" data-index="1">8</div>
-      <div class="cell" id="cell-2" data-index="2">1</div>
-      <div class="cell" id="cell-3" data-index="3">2</div>
-      
-      <div class="cell" id="cell-4" data-index="4">7</div>
-      <div class="cell center-cell" id="cell-5" data-index="5">
-        <div id="vesselImage">
-          <canvas id="overlayCanvas"></canvas>
-        </div>
-      </div>
-      <div class="cell" id="cell-6" data-index="6">3</div>
-      
-      <div class="cell" id="cell-7" data-index="7">6</div>
-      <div class="cell" id="cell-8" data-index="8">5</div>
-      <div class="cell" id="cell-9" data-index="9">4</div>
-    </div>
-  </div>
-
-  <input type="file" id="singleFileElem" accept="image/*" class="visually-hidden">
+<div class="main-header">
+<img src="https://raw.githubusercontent.com/pgarciafer/MTNblockagechart/main/logo.png" alt="MTN Logo" id="pageLogo">
+<h1>Blockage Chart</h1>
+</div>
+<div class="header-inputs">
+<div class="input-group">
+<label for="vesselName">Vessel Name</label>
+<input id="vesselName" type="text" placeholder="3LC_VesselName">
+<small class="input-hint">Formats to: HUL_Vesselname</small>
+</div>
+<div class="input-group">
+<label for="antennaLocation">Antenna & Location</label>
+<input id="antennaLocation" type="text" placeholder="e.g., STBD, AFT">
+</div>
+<div class="input-group">
+<label for="dateInput">Date</label>
+<input id="dateInput" type="date">
+</div>
+<div class="input-group">
+<label for="submittedBy">Technician Name</label>
+<input id="submittedBy" type="text" placeholder="Tech Name">
+<small class="input-hint">Formats to: Tech Name</small>
+</div>
+</div>
+<div class="content-wrapper">
+<div class="controls">
+<div class="panel" id="blockagePanel">
+<label>Blockage Zones (AZ Start / AZ Stop in degrees)</label>
+<table id="zonesTable">
+<thead><tr><th>AZ Start</th><th>AZ Stop</th><th>EL</th><th></th></tr></thead>
+<tbody id="zonesBody"></tbody>
+</table>
+<div style="margin-top:8px;font-size:13px;color:#536878">
+Add zones and they will be drawn over the center vessel. They are also included in the PDF.
+</div>
+</div>
+</div>
+<div class="button-container">
+    <button id="addBlockBtn">Add Blockage Zone</button>
+    <button id="generatePdf">Generate PDF</button>
+    <button id="removeAllImagesBtn">Remove All Images</button>
 </div>
 
+<label for="fileElem" id="drop-area">
+  <p>📸 Drop up to 8 photos here or click to browse</p>
+</label>
+<input type="file" id="fileElem" accept="image/*" multiple class="visually-hidden">
+
+<div id="grid">
+  <div class="cell" id="cell-1" data-index="1" data-default-number="8" role="button" tabindex="0">8</div>
+  <div class="cell" id="cell-2" data-index="2" data-default-number="1" role="button" tabindex="0">1</div>
+  <div class="cell" id="cell-3" data-index="3" data-default-number="2" role="button" tabindex="0">2</div>
+  
+  <div class="cell" id="cell-4" data-index="4" data-default-number="7" role="button" tabindex="0">7</div>
+  <div class="cell center-cell" id="cell-5" data-index="5">
+    <div id="vesselImage">
+      <canvas id="overlayCanvas"></canvas>
+    </div>
+  </div>
+  <div class="cell" id="cell-6" data-index="6" data-default-number="3" role="button" tabindex="0">3</div>
+  
+  <div class="cell" id="cell-7" data-index="7" data-default-number="6" role="button" tabindex="0">6</div>
+  <div class="cell" id="cell-8" data-index="8" data-default-number="5" role="button" tabindex="0">5</div>
+  <div class="cell" id="cell-9" data-index="9" data-default-number="4" role="button" tabindex="0">4</div>
+</div>
+
+</div>
+<input type="file" id="singleFileElem" accept="image/*" class="visually-hidden">
+</div>
+<div class="visually-hidden" id="aria-live-region" aria-live="polite"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
+// --------- IMPROVEMENT (Point 3): Debounce function for performance -----------
+function debounce(func, wait) {
+let timeout;
+return function executedFunction(...args) {
+const later = () => {
+clearTimeout(timeout);
+func(...args);
+};
+clearTimeout(timeout);
+timeout = setTimeout(later, wait);
+};
+}
+// --------- IMPROVEMENT (Point 4): Announcer for screen readers -----------
+function announceToScreenReader(message) {
+const announcer = document.getElementById('aria-live-region');
+if (announcer) {
+announcer.textContent = message;
+}
+}
+// --------- IMPROVEMENT (Point 5): Global constant for magic number -----------
+const ZONE_RADIUS_SCALE = 0.42;
 // Set default date to today
 const today = new Date();
 const yyyy = today.getFullYear();
 const mm = String(today.getMonth()+1).padStart(2,'0');
 const dd = String(today.getDate()).padStart(2,'0');
-document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
-
+document.getElementById('dateInput').value = ${yyyy}-${mm}-${dd};
 // --------- Blockage Zones -----------
 const zoneColors = ["rgba(255,0,0,0.45)","rgba(0,128,255,0.45)","rgba(0,200,0,0.45)","rgba(255,165,0,0.45)","rgba(128,0,128,0.45)","rgba(255,20,147,0.45)"];
 const zonesBody=document.getElementById('zonesBody');
 const overlayCanvas=document.getElementById('overlayCanvas');
 const overlayCtx=overlayCanvas.getContext('2d');
 const vesselImg=document.getElementById('vesselImage');
-
 function validateZoneRow(tr) {
-    const startInput = tr.cells[0].querySelector('input');
-    const stopInput = tr.cells[1].querySelector('input');
-    const start = parseFloat(startInput.value);
-    const stop = parseFloat(stopInput.value);
-
-    if (isNaN(start) || isNaN(stop)) {
-        startInput.style.borderColor = '';
-        stopInput.style.borderColor = '';
-        return;
-    }
-
-    let angle = stop - start;
-    if (angle < 0) {
-        angle += 360; // Assumes wrap-around
-    }
-
-    // A zone > 180 degrees is likely a user error (e.g., swapped start/stop)
-    if (angle > 180) {
-        startInput.style.borderColor = 'red';
-        stopInput.style.borderColor = 'red';
-    } else {
-        startInput.style.borderColor = ''; // Reset to default
-        stopInput.style.borderColor = '';
-    }
+const startInput = tr.cells[0].querySelector('input');
+const stopInput = tr.cells[1].querySelector('input');
+const start = parseFloat(startInput.value);
+const stop = parseFloat(stopInput.value);
+if (isNaN(start) || isNaN(stop)) {
+    startInput.style.borderColor = &#39;&#39;;
+    stopInput.style.borderColor = &#39;&#39;;
+    return;
 }
 
-function formatNumber(num){return(Math.round(num*100)/100).toString().replace(/\.00$/,'');}
+let angle = stop - start;
+if (angle &lt; 0) {
+    angle += 360; // Assumes wrap-around
+}
 
+// A zone &gt; 180 degrees is likely a user error (e.g., swapped start/stop)
+if (angle &gt; 180) {
+    startInput.style.borderColor = &#39;red&#39;;
+    stopInput.style.borderColor = &#39;red&#39;;
+} else {
+    startInput.style.borderColor = &#39;&#39;; // Reset to default
+    stopInput.style.borderColor = &#39;&#39;;
+}
+
+}
+function formatNumber(num){return(Math.round(num*100)/100).toString().replace(/.00$/,'');}
 function resizeOverlay() {
 const rect = vesselImg.getBoundingClientRect();
-
 // Overlay size = min(width, height) to make arcs circular
 const size = Math.min(rect.width, rect.height);
 overlayCanvas.width = size;
 overlayCanvas.height = size;
-overlayCanvas.style.width = size + 'px';
-overlayCanvas.style.height = size + 'px';
+overlayCanvas.style.width = size + &#39;px&#39;;
+overlayCanvas.style.height = size + &#39;px&#39;;
 
 // Center overlay over vessel image
-overlayCanvas.style.left = ((rect.width - size) / 2) + 'px';
-overlayCanvas.style.top = ((rect.height - size) / 2) + 'px';
+overlayCanvas.style.left = ((rect.width - size) / 2) + &#39;px&#39;;
+overlayCanvas.style.top = ((rect.height - size) / 2) + &#39;px&#39;;
 
 overlayCtx.setTransform(1, 0, 0, 1, 0, 0);
 drawZones();
+
 }
-
-
 function drawZones() {
-    const blockagePanel = document.getElementById('blockagePanel');
-    const rows = zonesBody.querySelectorAll('tr');
-    
-    if (rows.length > 0) {
-        blockagePanel.classList.add('has-zones');
-    } else {
-        blockagePanel.classList.remove('has-zones');
-    }
-
-    const ctx = overlayCtx;
-    const size = overlayCanvas.width;
-    const cx = size / 2;
-    const cy = size / 2;
-    const R = size * 0.42; // circle radius
-
-    ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-
-    rows.forEach(row => {
-        const start = parseFloat(row.cells[0].querySelector('input').value) || 0;
-        const stop = parseFloat(row.cells[1].querySelector('input').value) || 0;
-        const el = Math.min(Math.max(parseFloat(row.cells[2].querySelector('input').value) || 0, 0), 90);
-        const opacity = 0.2 + (el / 90) * 0.6;
-
-        const startRad = (start - 90) * Math.PI / 180;
-        const stopRad = (stop - 90) * Math.PI / 180;
-
-        ctx.save();
-        ctx.shadowColor = 'rgba(0,0,0,0.3)';
-        ctx.shadowBlur = 8;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 0;
-
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, R, startRad, stopRad, false);
-        ctx.closePath();
-        ctx.fillStyle = `rgba(255,0,0,${opacity})`;
-        ctx.fill();
-        ctx.restore();
-
-        // EL label
-        let midAngle = stop < start ?
-            ((start - 90) * Math.PI / 180 + (stop + 360 - 90) * Math.PI / 180) / 2 :
-            (startRad + stopRad) / 2;
-
-        const labelX = cx + Math.cos(midAngle) * R * 0.7;
-        const labelY = cy + Math.sin(midAngle) * R * 0.7;
-        ctx.fillStyle = 'black';
-        ctx.font = '12px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(`${Math.round(el)}°`, labelX, labelY);
-    });
+const blockagePanel = document.getElementById('blockagePanel');
+const rows = zonesBody.querySelectorAll('tr');
+if (rows.length &gt; 0) {
+    blockagePanel.classList.add(&#39;has-zones&#39;);
+} else {
+    blockagePanel.classList.remove(&#39;has-zones&#39;);
 }
 
+const ctx = overlayCtx;
+const size = overlayCanvas.width;
+const cx = size / 2;
+const cy = size / 2;
+// IMPROVEMENT (Point 5): Use global constant
+const R = size * ZONE_RADIUS_SCALE;
 
+ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+rows.forEach(row =&gt; {
+    const start = parseFloat(row.cells[0].querySelector(&#39;input&#39;).value) || 0;
+    const stop = parseFloat(row.cells[1].querySelector(&#39;input&#39;).value) || 0;
+    const el = Math.min(Math.max(parseFloat(row.cells[2].querySelector(&#39;input&#39;).value) || 0, 0), 90);
+    const opacity = 0.2 + (el / 90) * 0.6;
+
+    const startRad = (start - 90) * Math.PI / 180;
+    const stopRad = (stop - 90) * Math.PI / 180;
+
+    ctx.save();
+    ctx.shadowColor = &#39;rgba(0,0,0,0.3)&#39;;
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, startRad, stopRad, false);
+    ctx.closePath();
+    ctx.fillStyle = `rgba(255,0,0,${opacity})`;
+    ctx.fill();
+    ctx.restore();
+
+    // EL label
+    let midAngle = stop &lt; start ?
+        ((start - 90) * Math.PI / 180 + (stop + 360 - 90) * Math.PI / 180) / 2 :
+        (startRad + stopRad) / 2;
+
+    const labelX = cx + Math.cos(midAngle) * R * 0.7;
+    const labelY = cy + Math.sin(midAngle) * R * 0.7;
+    ctx.fillStyle = &#39;black&#39;;
+    ctx.font = &#39;12px sans-serif&#39;;
+    ctx.textAlign = &#39;center&#39;;
+    ctx.textBaseline = &#39;middle&#39;;
+    ctx.fillText(`${Math.round(el)}°`, labelX, labelY);
+});
+
+}
 document.getElementById('antennaLocation').addEventListener('input', (event) => {
 event.target.value = event.target.value.toUpperCase();
 });
-
 document.getElementById('submittedBy').addEventListener('change', (event) => {
 let value = event.target.value.trim();
-
 // Split the input value into words
 let words = value.split(/\s+/);
-
 // Capitalize the first letter of each word and make the rest lowercase
 let formattedWords = words.map(word => {
-    if (word.length === 0) return '';
-    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+if (word.length === 0) return '';
+return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 });
-
 // Join the words back together with a space and update the input value
 event.target.value = formattedWords.join(' ');
 });
-
 function createZoneRow(start = 0, stop = 0, el = 0) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-    <td><input inputmode="decimal" value="${formatNumber(start)}"></td>
-    <td><input inputmode="decimal" value="${formatNumber(stop)}"></td>
-    <td><input inputmode="decimal" value="${formatNumber(el)}"></td>
-    <td><button>X</button></td>
-    `;
-    
-    const inputs = tr.querySelectorAll('input');
-    inputs.forEach(input => input.addEventListener('focus', event => event.target.select()));
+const tr = document.createElement('tr');
+// IMPROVEMENT (Point 4): Added aria-label to the remove button
+tr.innerHTML = &lt;td&gt;&lt;input inputmode=&quot;decimal&quot; value=&quot;${formatNumber(start)}&quot;&gt;&lt;/td&gt; &lt;td&gt;&lt;input inputmode=&quot;decimal&quot; value=&quot;${formatNumber(stop)}&quot;&gt;&lt;/td&gt; &lt;td&gt;&lt;input inputmode=&quot;decimal&quot; value=&quot;${formatNumber(el)}&quot;&gt;&lt;/td&gt; &lt;td&gt;&lt;button aria-label=&quot;Remove zone&quot;&gt;X&lt;/button&gt;&lt;/td&gt;;
+const inputs = tr.querySelectorAll(&#39;input&#39;);
+inputs.forEach(input =&gt; input.addEventListener(&#39;focus&#39;, event =&gt; event.target.select()));
 
-    const startInput = inputs[0];
-    const stopInput = inputs[1];
-    const elInput = inputs[2];
+const startInput = inputs[0];
+const stopInput = inputs[1];
+const elInput = inputs[2];
 
-    const azHandler = () => {
-        validateZoneRow(tr);
-        drawZones();
-    };
-
-    startInput.addEventListener('input', azHandler);
-    stopInput.addEventListener('input', azHandler);
-
-    startInput.addEventListener('blur', () => {
-        startInput.value = formatNumber(Math.min(Math.max(parseFloat(startInput.value) || 0, 0), 360));
-        azHandler();
-    });
-    stopInput.addEventListener('blur', () => {
-        stopInput.value = formatNumber(Math.min(Math.max(parseFloat(stopInput.value) || 0, 0), 360));
-        azHandler();
-    });
-
-    elInput.addEventListener('input', drawZones);
-    elInput.addEventListener('blur', () => {
-        elInput.value = formatNumber(Math.min(Math.max(parseFloat(elInput.value) || 0, 0), 90));
-        drawZones();
-    });
-
-    tr.querySelector('button').addEventListener('click', () => {
-        tr.remove();
-        drawZones();
-    });
-
-    zonesBody.appendChild(tr);
-    drawZones();
+const azHandler = () =&gt; {
     validateZoneRow(tr);
+    drawZones();
+};
+
+startInput.addEventListener(&#39;input&#39;, azHandler);
+stopInput.addEventListener(&#39;input&#39;, azHandler);
+
+startInput.addEventListener(&#39;blur&#39;, () =&gt; {
+    startInput.value = formatNumber(Math.min(Math.max(parseFloat(startInput.value) || 0, 0), 360));
+    azHandler();
+});
+stopInput.addEventListener(&#39;blur&#39;, () =&gt; {
+    stopInput.value = formatNumber(Math.min(Math.max(parseFloat(stopInput.value) || 0, 0), 360));
+    azHandler();
+});
+
+elInput.addEventListener(&#39;input&#39;, drawZones);
+elInput.addEventListener(&#39;blur&#39;, () =&gt; {
+    elInput.value = formatNumber(Math.min(Math.max(parseFloat(elInput.value) || 0, 0), 90));
+    drawZones();
+});
+
+tr.querySelector(&#39;button&#39;).addEventListener(&#39;click&#39;, () =&gt; {
+    tr.remove();
+    drawZones();
+    // IMPROVEMENT (Point 4): Announce zone removal
+    announceToScreenReader(&quot;Blockage zone removed.&quot;);
+});
+
+zonesBody.appendChild(tr);
+drawZones();
+validateZoneRow(tr);
+// IMPROVEMENT (Point 4): Announce zone addition
+announceToScreenReader(&quot;Blockage zone added.&quot;);
+
 }
-
-
 document.getElementById('addBlockBtn').addEventListener('click',()=>createZoneRow());
-
 // --------- Drag & Drop 8 Photos -----------
 const dropArea=document.getElementById('drop-area');
 const fileInput=document.getElementById('fileElem');
@@ -632,212 +636,240 @@ dropArea.addEventListener(e,ev=>{ev.preventDefault();ev.stopPropagation();});
 ["dragleave","drop"].forEach(e=>dropArea.addEventListener(e,()=>dropArea.classList.remove("highlight")));
 dropArea.addEventListener("drop",e=>handleFiles(e.dataTransfer.files));
 fileInput.addEventListener("change",()=>handleFiles(fileInput.files));
-
 const placementOrder=[2,3,6,9,8,7,4,1];
-
 function processImage(file, index) {
-    const reader = new FileReader();
+// IMPROVEMENT (Point 2): Check file type, although handleFiles should pre-filter
+if (!file.type.startsWith('image/')) {
+console.warn(Skipping non-image file: ${file.name});
+return;
+}
+const reader = new FileReader();
 
-    reader.onload = function(e) {
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const maxSize = 600; // Keep the max size for compression
-            let { width, height } = img;
+reader.onload = function(e) {
+    const img = new Image();
+    img.onload = () =&gt; {
+        const canvas = document.createElement(&#39;canvas&#39;);
+        const ctx = canvas.getContext(&#39;2d&#39;);
+        const maxSize = 600; // Keep the max size for compression
+        let { width, height } = img;
 
-            if (width > height) {
-                if (width > maxSize) {
-                    height *= maxSize / width;
-                    width = maxSize;
-                }
-            } else {
-                if (height > maxSize) {
-                    width *= maxSize / height;
-                    height = maxSize;
-                }
+        if (width &gt; height) {
+            if (width &gt; maxSize) {
+                height *= maxSize / width;
+                width = maxSize;
             }
-
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            // Use JPEG for better compression of photos
-            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-
-            const cell = document.getElementById(`cell-${index}`);
-            if (cell) {
-                cell.innerHTML = ""; // Clear previous content
-                const imgEl = document.createElement('img');
-                imgEl.src = compressedDataUrl;
-                cell.appendChild(imgEl);
+        } else {
+            if (height &gt; maxSize) {
+                width *= maxSize / height;
+                height = maxSize;
             }
-        };
-        img.onerror = () => {
-            console.error("Error loading image from data URL. The file might be corrupted or in an unsupported format.");
-            alert("Could not load image. Please try a different photo.");
-        };
-        // The result of the FileReader is the data URL
-        img.src = e.target.result;
-    };
+        }
 
-    reader.onerror = function() {
-        console.error("FileReader failed to read the file.");
-        alert("Failed to read the selected file. Please try again.");
-    };
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Use JPEG for better compression of photos
+        const compressedDataUrl = canvas.toDataURL(&#39;image/jpeg&#39;, 0.7);
 
-    // Start reading the file as a Data URL
-    reader.readAsDataURL(file);
+        const cell = document.getElementById(`cell-${index}`);
+        if (cell) {
+            cell.innerHTML = &quot;&quot;; // Clear previous content
+            const imgEl = document.createElement(&#39;img&#39;);
+            imgEl.src = compressedDataUrl;
+            cell.appendChild(imgEl);
+            // IMPROVEMENT (Point 4): Announce image addition
+            announceToScreenReader(`Image added to cell ${cell.dataset.defaultNumber}.`);
+        }
+    };
+    img.onerror = () =&gt; {
+        console.error(&quot;Error loading image from data URL. The file might be corrupted or in an unsupported format.&quot;);
+        alert(&quot;Could not load image. Please try a different photo.&quot;);
+    };
+    // The result of the FileReader is the data URL
+    img.src = e.target.result;
+};
+
+reader.onerror = function() {
+    console.error(&quot;FileReader failed to read the file.&quot;);
+    alert(&quot;Failed to read the selected file. Please try again.&quot;);
+};
+
+// Start reading the file as a Data URL
+reader.readAsDataURL(file);
+
+}
+function handleFiles(files) {
+// IMPROVEMENT (Point 2): Filter for images and provide user feedback
+const allFiles = Array.from(files);
+const imageFiles = allFiles.filter(file => file.type.startsWith('image/'));
+const nonImageCount = allFiles.length - imageFiles.length;
+if (imageFiles.length === 0) {
+    alert(&quot;No valid image files were selected.&quot;);
+    return;
 }
 
+const filesToProcess = imageFiles.slice(0, 8);
+const ignoredImageCount = imageFiles.length - filesToProcess.length;
 
-function handleFiles(files){Array.from(files).slice(0,8).forEach((file,i)=>processImage(file,placementOrder[i]));}
+let alertMessages = [];
+if (nonImageCount &gt; 0) {
+    alertMessages.push(`${nonImageCount} non-image file(s) were ignored.`);
+}
+if (ignoredImageCount &gt; 0) {
+    alertMessages.push(`Only the first 8 images were added. ${ignoredImageCount} additional image(s) were ignored.`);
+}
 
+if(alertMessages.length &gt; 0) {
+    alert(alertMessages.join(&#39;\n&#39;));
+}
 
+filesToProcess.forEach((file, i) =&gt; processImage(file, placementOrder[i]));
+
+}
 // --------- One-by-one photo selection -----------
 const singleFileElem = document.getElementById('singleFileElem');
 let currentCellIndex = null;
-
 function openFilePickerForCell(index) {
-    currentCellIndex = index;
-    singleFileElem.click();
+currentCellIndex = index;
+singleFileElem.click();
 }
-
 singleFileElem.addEventListener('change', () => {
-    if (singleFileElem.files.length > 0 && currentCellIndex) {
-        processImage(singleFileElem.files[0], currentCellIndex);
-    }
-    singleFileElem.value = '';
+if (singleFileElem.files.length > 0 && currentCellIndex) {
+// IMPROVEMENT (Point 2): Check file type for single upload
+const file = singleFileElem.files[0];
+if (file.type.startsWith('image/')) {
+processImage(file, currentCellIndex);
+} else {
+alert("Invalid file type. Please select an image.");
+}
+}
+singleFileElem.value = '';
 });
-
 function setupCellClickListeners() {
-    const cells = document.querySelectorAll('.cell:not(.center-cell)');
-    cells.forEach(cell => {
-        const index = cell.dataset.index;
-        const initialNumber = cell.innerHTML.trim(); 
-        
-        cell.removeEventListener('click', handleCellClick); 
-        cell.addEventListener('click', handleCellClick);
-
-        function handleCellClick(event) {
-            if (cell.querySelector('img')) {
-                if (window.confirm("This cell already has a picture. Do you want to replace it? Click 'Cancel' to remove the image.")) {
-                    openFilePickerForCell(index);
-                } else {
-                    cell.innerHTML = initialNumber;
-                }
-            } else {
+const cells = document.querySelectorAll('.cell:not(.center-cell)');
+cells.forEach(cell => {
+const index = cell.dataset.index;
+    // Use a named function for easier add/remove if needed, though not strictly required here
+    function handleCellClick(event) {
+        if (cell.querySelector(&#39;img&#39;)) {
+            if (window.confirm(&quot;This cell already has a picture. Do you want to replace it? Click &#39;Cancel&#39; to remove the image.&quot;)) {
                 openFilePickerForCell(index);
+            } else {
+                // IMPROVEMENT (Point 5): Use data-default-number
+                cell.innerHTML = cell.dataset.defaultNumber || &#39;&#39;;
+                // IMPROVEMENT (Point 4): Announce image removal
+                announceToScreenReader(`Image removed from cell ${cell.dataset.defaultNumber}.`);
             }
+        } else {
+            openFilePickerForCell(index);
+        }
+    }
+
+    cell.removeEventListener(&#39;click&#39;, handleCellClick); // Prevent double-listeners on reload
+    cell.addEventListener(&#39;click&#39;, handleCellClick);
+
+    // IMPROVEMENT (Point 4): Add keyboard accessibility
+    cell.addEventListener(&#39;keydown&#39;, (event) =&gt; {
+        if (event.key === &#39;Enter&#39; || event.key === &#39; &#39;) {
+            event.preventDefault(); // Stop spacebar from scrolling page
+            handleCellClick(event);
         }
     });
+});
+
 }
 // -------------------------------------------------------------
-
 // --------- Remove All Images Function -----------
 function removeAllImages() {
-    const cells = document.querySelectorAll('.cell:not(.center-cell)');
-    cells.forEach(cell => {
-        const cellMap = {
-            "1": "8", "2": "1", "3": "2",
-            "4": "7", "6": "3",
-            "7": "6", "8": "5", "9": "4"
-        };
-        const fixedIndex = cell.dataset.index;
-        const clockwiseNumber = cellMap[fixedIndex] || '';
-
-        cell.innerHTML = clockwiseNumber;
-    });
+// IMPROVEMENT (Point 2): Add confirmation dialog
+if (!window.confirm("Are you sure you want to remove all images? This cannot be undone.")) {
+return;
 }
+const cells = document.querySelectorAll(&#39;.cell:not(.center-cell)&#39;);
+cells.forEach(cell =&gt; {
+    // IMPROVEMENT (Point 5): Use data-default-number for simpler logic
+    cell.innerHTML = cell.dataset.defaultNumber || &#39;&#39;;
+});
 
+// IMPROVEMENT (Point 4): Announce action completion
+announceToScreenReader(&quot;All images have been removed.&quot;);
+
+}
 document.getElementById('removeAllImagesBtn').addEventListener('click', removeAllImages);
 // ------------------------------------------------
-
 // --------- PDF Generation (Merged + Fixed) -----------
-document.getElementById('generatePdf').addEventListener('click', async()=>{
+document.getElementById('generatePdf').addEventListener('click', async () => {
+// IMPROVEMENT (Point 2): Add loading state
+const btn = document.getElementById('generatePdf');
+btn.disabled = true;
+btn.textContent = 'Generating PDF...';
   try {
     const pdfContainer = document.createElement('div');
     pdfContainer.style.width = '720px';
     pdfContainer.style.background = '#fff';
     pdfContainer.style.padding = '10px';
     pdfContainer.style.borderRadius = '8px';
-
     const vesselNameVal = document.getElementById('vesselName').value.trim();
     const antennaLocVal = document.getElementById('antennaLocation').value.trim();
-    const dateVal = document.getElementById('dateInput').value;
-    const submittedByVal = document.getElementById('submittedBy').value.trim();
-
+const dateVal = document.getElementById('dateInput').value;
+const submittedByVal = document.getElementById('submittedBy').value.trim();
 if (vesselNameVal || antennaLocVal || dateVal || submittedByVal) {
 const infoDiv = document.createElement('div');
 infoDiv.style.display = 'flex';
 infoDiv.style.alignItems = 'center';
 infoDiv.style.justifyContent = 'center';
 infoDiv.style.marginBottom = '12px';
-
 const logoImg = document.createElement('img');
 logoImg.src = 'https://raw.githubusercontent.com/pgarciafer/MTNblockagechart/main/logo.png';
 logoImg.style.height = '50px';
 logoImg.style.marginRight = '12px';
 infoDiv.appendChild(logoImg);
-
 const textDiv = document.createElement('div');
 textDiv.style.textAlign = 'left';
-if(vesselNameVal) textDiv.innerHTML += `<div><strong>Vessel:</strong> ${vesselNameVal}</div>`;
-if(antennaLocVal) textDiv.innerHTML += `<div><strong>Antenna & Location:</strong> ${antennaLocVal}</div>`;
-if(dateVal) textDiv.innerHTML += `<div><strong>Date:</strong> ${dateVal}</div>`;
-if(submittedByVal) textDiv.innerHTML += `<div><strong>Submitted by:</strong> ${submittedByVal}</div>`;
-
+if(vesselNameVal) textDiv.innerHTML += &lt;div&gt;&lt;strong&gt;Vessel:&lt;/strong&gt; ${vesselNameVal}&lt;/div&gt;;
+if(antennaLocVal) textDiv.innerHTML += &lt;div&gt;&lt;strong&gt;Antenna &amp; Location:&lt;/strong&gt; ${antennaLocVal}&lt;/div&gt;;
+if(dateVal) textDiv.innerHTML += &lt;div&gt;&lt;strong&gt;Date:&lt;/strong&gt; ${dateVal}&lt;/div&gt;;
+if(submittedByVal) textDiv.innerHTML += &lt;div&gt;&lt;strong&gt;Submitted by:&lt;/strong&gt; ${submittedByVal}&lt;/div&gt;;
 infoDiv.appendChild(textDiv);
 pdfContainer.appendChild(infoDiv);
 }
+const rows = Array.from(zonesBody.querySelectorAll(&#39;tr&#39;));
 
-
-
-    const rows = Array.from(zonesBody.querySelectorAll('tr'));
 if (rows.length > 0) {
-  const gridCanvas = createBlockageGridCanvas();
-  const gridImg = document.createElement('img');
-  gridImg.src = gridCanvas.toDataURL('image/png');
-  gridImg.style.display = 'block';
-  gridImg.style.margin = '10px auto';
-  pdfContainer.appendChild(gridImg);
+const gridCanvas = createBlockageGridCanvas();
+const gridImg = document.createElement('img');
+gridImg.src = gridCanvas.toDataURL('image/png');
+gridImg.style.display = 'block';
+gridImg.style.margin = '10px auto';
+pdfContainer.appendChild(gridImg);
 }
-
 function createBlockageGridCanvas() {
   const cols = 72;
   const rows = 18;
   const cellSize = 9;
   const margin = 20;
-
   const width = cols * cellSize + margin * 2;
   const height = rows * cellSize + margin * 2;
-
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext('2d');
-
   ctx.fillStyle = '#fff';
   ctx.fillRect(0, 0, width, height);
-
   ctx.translate(margin, height - margin);
-
   ctx.strokeStyle = '#000';
   ctx.lineWidth = 1;
-
   ctx.beginPath();
   ctx.moveTo(0, 0);
   ctx.lineTo(0, -rows * cellSize);
   ctx.stroke();
-
   ctx.beginPath();
   ctx.moveTo(0, 0);
   ctx.lineTo(cols * cellSize, 0);
   ctx.stroke();
-
   ctx.strokeStyle = '#ddd';
   ctx.lineWidth = 0.5;
-
   for (let c = 1; c < cols; c++) {
     const x = c * cellSize;
     ctx.beginPath();
@@ -852,7 +884,6 @@ function createBlockageGridCanvas() {
     ctx.lineTo(cols * cellSize, y);
     ctx.stroke();
   }
-
   const zoneRows = Array.from(zonesBody.querySelectorAll('tr'));
   ctx.fillStyle = 'rgba(128,128,128,0.7)';
   zoneRows.forEach(row => {
@@ -861,13 +892,10 @@ function createBlockageGridCanvas() {
     const el      = parseFloat(row.cells[2].querySelector('input').value) || 0;
     const elClamped = Math.min(Math.max(el, 0), 90);
     const rowTop = Math.floor((elClamped / 90) * rows);
-
     const normalizeAz = az => (az < 180 ? 36 + Math.floor(az/5) : Math.floor((az-180)/5));
     const cStart = normalizeAz(azStart);
     const cStop  = normalizeAz(azStop);
-
-    const fillCell = (c,r) => ctx.fillRect(c*cellSize, -r*cellSize - cellSize, cellSize, cellSize);
-
+    const fillCell = (c,r) => ctx.fillRect(ccellSize, -rcellSize - cellSize, cellSize, cellSize);
     if(cStart <= cStop){
       for(let c=cStart;c<=cStop;c++) for(let r=0;r<=rowTop;r++) fillCell(c,r);
     } else {
@@ -875,180 +903,181 @@ function createBlockageGridCanvas() {
       for(let c=0;c<=cStop;c++) for(let r=0;r<=rowTop;r++) fillCell(c,r);
     }
   });
-
   ctx.fillStyle = '#000';
   ctx.font = '8px sans-serif';
-
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
   for (let az = 180; az <= 540; az += 10) {
     let colIndex = az <= 360 ? (az - 180) / 5 : (az - 540) / 5 + 72;
     const x = colIndex * cellSize;
     if (x < 0 || x > cols * cellSize) continue;
-
     ctx.beginPath();
     ctx.moveTo(x, 0);
     ctx.lineTo(x, 3);
     ctx.stroke();
-
     ctx.save();
     ctx.translate(x, 6);
     ctx.rotate(-Math.PI / 4);
     ctx.fillText((az % 360).toString(), 0, 0);
     ctx.restore();
   }
-
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
   for(let el=0; el<=90; el+=5){
-    const y = -(el/90)*rows*cellSize;
+    const y = -(el/90)rowscellSize;
     ctx.beginPath();
     ctx.moveTo(-3,y); ctx.lineTo(0,y); ctx.stroke();
     ctx.fillText(el.toString(), -8, y);
   }
-
   return canvas;
 }
-
-
 async function createVesselCanvasForPDF() {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = 'https://pgarciafer.github.io/satcalc/IMG_0585.PNG';
-    await new Promise(resolve => img.onload = resolve);
+const img = new Image();
+img.crossOrigin = "anonymous";
+img.src = 'https://pgarciafer.github.io/satcalc/IMG_0585.PNG';
+await new Promise(resolve => img.onload = resolve);
+const width = img.naturalWidth;
+const height = img.naturalHeight;
 
-    const width = img.naturalWidth;
-    const height = img.naturalHeight;
+const canvas = document.createElement(&#39;canvas&#39;);
+canvas.width = width;
+canvas.height = height;
+const ctx = canvas.getContext(&#39;2d&#39;);
 
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
+ctx.drawImage(img, 0, 0, width, height);
 
-    ctx.drawImage(img, 0, 0, width, height);
+const size = Math.min(width, height);
+const cx = width / 2;
+const cy = height / 2;
+// IMPROVEMENT (Point 5): Use global constant
+const R = size * ZONE_RADIUS_SCALE;
 
-    const size = Math.min(width, height);
-    const cx = width / 2;
-    const cy = height / 2;
-    const R = size * 0.42;
+Array.from(zonesBody.querySelectorAll(&#39;tr&#39;)).forEach(row =&gt; {
+    const start = parseFloat(row.cells[0].querySelector(&#39;input&#39;).value);
+    const stop = parseFloat(row.cells[1].querySelector(&#39;input&#39;).value);
+    const el = parseFloat(row.cells[2].querySelector(&#39;input&#39;).value);
+    if (isNaN(start) || isNaN(stop)) return;
 
-    Array.from(zonesBody.querySelectorAll('tr')).forEach(row => {
-        const start = parseFloat(row.cells[0].querySelector('input').value);
-        const stop = parseFloat(row.cells[1].querySelector('input').value);
-        const el = parseFloat(row.cells[2].querySelector('input').value);
-        if (isNaN(start) || isNaN(stop)) return;
+    const startRad = (start - 90) * Math.PI / 180;
+    const stopRad = (stop - 90) * Math.PI / 180;
+    const elClamped = Math.min(Math.max(el, 0), 90);
+    const opacity = 0.2 + (elClamped / 90) * 0.6;
 
-        const startRad = (start - 90) * Math.PI / 180;
-        const stopRad = (stop - 90) * Math.PI / 180;
-        const elClamped = Math.min(Math.max(el, 0), 90);
-        const opacity = 0.2 + (elClamped / 90) * 0.6;
+    ctx.save();
+    ctx.shadowColor = &#39;rgba(0,0,0,0.3)&#39;;
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
 
-        ctx.save();
-        ctx.shadowColor = 'rgba(0,0,0,0.3)';
-        ctx.shadowBlur = 8;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 0;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, startRad, stopRad, false);
+    ctx.closePath();
+    ctx.fillStyle = `rgba(255, 0, 0, ${opacity})`;
+    ctx.fill();
+    ctx.restore();
 
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, R, startRad, stopRad, false);
-        ctx.closePath();
-        ctx.fillStyle = `rgba(255, 0, 0, ${opacity})`;
-        ctx.fill();
-        ctx.restore();
+    let midAngle = (stop &lt; start) ?
+        ((start - 90) * Math.PI / 180 + (stop + 360 - 90) * Math.PI / 180) / 2 :
+        (startRad + stopRad) / 2;
+    const labelX = cx + Math.cos(midAngle) * R * 0.7;
+    const labelY = cy + Math.sin(midAngle) * R * 0.7;
+    ctx.fillStyle = &#39;black&#39;;
+    ctx.font = &#39;28px sans-serif&#39;;
+    ctx.textAlign = &#39;center&#39;;
+    ctx.textBaseline = &#39;middle&#39;;
+    ctx.fillText(`${Math.round(el)}°`, labelX, labelY);
+});
 
-        let midAngle = (stop < start) ?
-            ((start - 90) * Math.PI / 180 + (stop + 360 - 90) * Math.PI / 180) / 2 :
-            (startRad + stopRad) / 2;
-        const labelX = cx + Math.cos(midAngle) * R * 0.7;
-        const labelY = cy + Math.sin(midAngle) * R * 0.7;
-        ctx.fillStyle = 'black';
-        ctx.font = '28px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(`${Math.round(el)}°`, labelX, labelY);
-    });
+return canvas;
 
-    return canvas;
+}
+const gridClone = document.getElementById(&#39;grid&#39;).cloneNode(true);
+// IMPROVEMENT: Remove keyboard attributes from clone to prevent PDF issues
+gridClone.querySelectorAll(&#39;[role=&quot;button&quot;]&#39;).forEach(el =&gt; {
+    el.removeAttribute(&#39;role&#39;);
+    el.removeAttribute(&#39;tabindex&#39;);
+});
+
+const centerCellClone = gridClone.querySelector(&#39;#cell-5&#39;);
+centerCellClone.innerHTML = &#39;&#39;;
+const vesselCanvas = await createVesselCanvasForPDF();
+const imgEl = document.createElement(&#39;img&#39;);
+imgEl.src = vesselCanvas.toDataURL(&#39;image/png&#39;);
+centerCellClone.appendChild(imgEl);
+
+pdfContainer.appendChild(gridClone);
+
+document.body.appendChild(pdfContainer);
+
+const canvas = await html2canvas(pdfContainer, {
+scale: 2,
+useCORS: true,
+ignoreElements: (element) =&gt; {
+    return false;
+},
+onrendered: function(canvas) {
 }
 
-    const gridClone = document.getElementById('grid').cloneNode(true);
-    const centerCellClone = gridClone.querySelector('#cell-5');
-    centerCellClone.innerHTML = '';
-    const vesselCanvas = await createVesselCanvasForPDF();
-    const imgEl = document.createElement('img');
-    imgEl.src = vesselCanvas.toDataURL('image/png');
-    centerCellClone.appendChild(imgEl);
-
-    pdfContainer.appendChild(gridClone);
-
-    document.body.appendChild(pdfContainer);
-    
-    const canvas = await html2canvas(pdfContainer, {
-    scale: 2,
-    useCORS: true,
-    ignoreElements: (element) => {
-        return false;
-    },
-    onrendered: function(canvas) {
-    }
 });
-    
-    const imgData = canvas.toDataURL('image/jpeg',0.95);
-    const {jsPDF} = window.jspdf;
-    const pdf = new jsPDF('p','mm','a4');
-    const pageWidth = 210;
-    const pageHeight = 297;
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height*imgWidth)/canvas.width;
-    const posY = (pageHeight - imgHeight)/2;
-    pdf.addImage(imgData,'JPEG',0,posY,imgWidth,imgHeight);
+const imgData = canvas.toDataURL(&#39;image/jpeg&#39;,0.95);
+const {jsPDF} = window.jspdf;
+const pdf = new jsPDF(&#39;p&#39;,&#39;mm&#39;,&#39;a4&#39;);
+const pageWidth = 210;
+const pageHeight = 297;
+const imgWidth = pageWidth;
+const imgHeight = (canvas.height*imgWidth)/canvas.width;
+const posY = (pageHeight - imgHeight)/2;
+pdf.addImage(imgData,&#39;JPEG&#39;,0,posY,imgWidth,imgHeight);
 
-    const cleanDate = dateVal.replace(/-/g,'');
-    const fileName = `${vesselNameVal}_BlockageChart_${antennaLocVal}_${cleanDate}.pdf`
-      .replace(/[\/\\?%*:|"<>]/g, '_');
+const cleanDate = dateVal.replace(/-/g,&#39;&#39;);
+const fileName = `${vesselNameVal}_BlockageChart_${antennaLocVal}_${cleanDate}.pdf`
+  .replace(/[\/\\?%*:|&quot;&lt;&gt;]/g, &#39;_&#39;);
 
 pdf.save(fileName);
+pdfContainer.remove();
 
-    pdfContainer.remove();
-  } catch(err) {
-    console.error("PDF generation failed:", err);
-    if (window.confirm("PDF generation failed. Check console for details. Click OK to view the error in the console.")) {
-    }
-  }
+} catch(err) {
+// IMPROVEMENT (Point 5): Better error handling
+console.error("PDF generation failed:", err);
+alert("PDF generation failed. Please check the browser console for more details.");
+} finally {
+// IMPROVEMENT (Point 2): Reset button state
+btn.disabled = false;
+btn.textContent = 'Generate PDF';
+}
 });
-
 document.getElementById('vesselName').addEventListener('change', (event) => {
-    let value = event.target.value.trim();
+let value = event.target.value.trim();
+const prefixRegex = /^[A-Z]{3}_/;
+let prefix = &#39;&#39;;
+let namePart = value;
 
-    const prefixRegex = /^[A-Z]{3}_/;
-    let prefix = '';
-    let namePart = value;
+if (prefixRegex.test(value)) {
+    prefix = value.substring(0, 4);
+    namePart = value.substring(4);
+} else if (value.length &gt;= 3) {
+    prefix = value.substring(0, 3).toUpperCase() + &#39;_&#39;;
+    namePart = value.substring(3);
+}
 
-    if (prefixRegex.test(value)) {
-        prefix = value.substring(0, 4);
-        namePart = value.substring(4);
-    } else if (value.length >= 3) {
-        prefix = value.substring(0, 3).toUpperCase() + '_';
-        namePart = value.substring(3);
-    }
-
-    let words = namePart.split(/\s+/);
-    let formattedWords = words.map(word => {
-        if (word.length === 0) return '';
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    });
-
-    event.target.value = prefix + formattedWords.join('');
+let words = namePart.split(/\s+/);
+let formattedWords = words.map(word =&gt; {
+    if (word.length === 0) return &#39;&#39;;
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 });
 
-window.addEventListener('resize', resizeOverlay);
+event.target.value = prefix + formattedWords.join(&#39;&#39;);
+
+});
+// IMPROVEMENT (Point 3): Use debounce for the resize listener
+window.addEventListener('resize', debounce(resizeOverlay, 250));
 window.addEventListener('DOMContentLoaded',() => {
-    resizeOverlay();
-    setupCellClickListeners();
-    document.querySelectorAll('.header-inputs input').forEach(input => {
-        input.addEventListener('focus', event => event.target.select());
-    });
+resizeOverlay();
+setupCellClickListeners();
+document.querySelectorAll('.header-inputs input').forEach(input => {
+input.addEventListener('focus', event => event.target.select());
+});
 });
 </script>
 </body>
