@@ -1097,33 +1097,29 @@ async function downloadPdf() {
         pdf.addImage(imgData, 'JPEG', 0, posY, imgWidth, imgHeight);
 
         // --- NEW LOGIC ---
-        // Check if Web Share API is available (common on modern mobile browsers)
-        if (navigator.share && navigator.canShare) {
-            // 1. Get the PDF as a blob
+        // Add a simple mobile check
+        const isMobile = /Mobi|Android|iPhone/i.test(navigator.userAgent);
+
+        // Use Web Share API on mobile if available
+        if (isMobile && navigator.share && navigator.canShare) {
             const pdfBlob = pdf.output('blob');
-            
-            // 2. Create a File object from the blob
             const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-            // 3. Use navigator.share to share the file
             await navigator.share({
                 title: 'Blockage Chart',
                 text: `Blockage chart for ${vesselNameVal}`,
                 files: [pdfFile]
             });
-            // Successfully shared, no download needed.
-            return; 
-
+            return; // Successfully shared, no download needed.
         } else {
             // --- FALLBACK LOGIC ---
-            // Web Share API not available (e.g., desktop browser), use the original download method.
+            // On desktop, or if share is unavailable, download directly.
             pdf.save(fileName);
         }
         
     } catch (err) {
         if (err.name === 'AbortError') {
-            // This happens if the user cancels the share sheet.
-            // It's not a real error, so we can safely ignore it.
+            // This happens if the user cancels the share sheet. It's not a real error.
             console.log("Share cancelled by user.");
         } else {
             console.error("PDF generation/share failed:", err);
