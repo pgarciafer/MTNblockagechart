@@ -1062,38 +1062,77 @@ async function generatePdfContentCanvas() {
     return canvas;
 }
 
-// Original download function, now triggered by the main button
-function downloadPdf() {
+// --- THIS FUNCTION IS UPDATED ---
+async function downloadPdf() {
     if (!generatedCanvas) {
         alert("Preview data not found. Please generate the preview again.");
         return;
     }
-    try {
-        const imgData = generatedCanvas.toDataURL('image/jpeg', 0.95);
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const imgProps = pdf.getImageProperties(imgData);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const ratio = imgProps.width / imgProps.height;
-        const imgWidth = pdfWidth;
-        const imgHeight = imgWidth / ratio;
-        const posY = (pdfHeight - imgHeight > 0) ? (pdfHeight - imgHeight) / 2 : 0;
-        pdf.addImage(imgData, 'JPEG', 0, posY, imgWidth, imgHeight);
 
+    try {
         const vesselNameVal = document.getElementById('vesselName').value.trim();
         const antennaLocVal = document.getElementById('antennaLocation').value.trim();
         const dateVal = document.getElementById('dateInput').value;
         const cleanDate = dateVal.replace(/-/g, '');
         const fileName = `${vesselNameVal}_BlockageChart_${antennaLocVal}_${cleanDate}.pdf`.replace(/[\/\\?%*:|"<>]/g, '_');
 
-        pdf.save(fileName);
-        // closeModal(); // No modal to close
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgData = generatedCanvas.toDataURL('image/jpeg', 0.95);
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const ratio = imgProps.width / imgProps.height;
+        let imgWidth = pdfWidth;
+        let imgHeight = imgWidth / ratio;
+        let posY = (pdfHeight - imgHeight > 0) ? (pdfHeight - imgHeight) / 2 : 0;
+
+        // On very tall (unlikely) images, fit to height instead
+        if (imgHeight > pdfHeight) {
+            imgHeight = pdfHeight;
+            imgWidth = imgHeight * ratio;
+            posY = 0;
+        }
+
+        pdf.addImage(imgData, 'JPEG', 0, posY, imgWidth, imgHeight);
+
+        // --- NEW LOGIC ---
+        // Check if Web Share API is available (common on modern mobile browsers)
+        if (navigator.share && navigator.canShare) {
+            // 1. Get the PDF as a blob
+            const pdfBlob = pdf.output('blob');
+            
+            // 2. Create a File object from the blob
+            const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+            // 3. Use navigator.share to share the file
+            await navigator.share({
+                title: 'Blockage Chart',
+                text: `Blockage chart for ${vesselNameVal}`,
+                files: [pdfFile]
+            });
+            // Successfully shared, no download needed.
+            return; 
+
+        } else {
+            // --- FALLBACK LOGIC ---
+            // Web Share API not available (e.g., desktop browser), use the original download method.
+            pdf.save(fileName);
+        }
+        
     } catch (err) {
-        console.error("PDF download failed:", err);
-        alert("PDF download failed. Please check the console for details.");
+        if (err.name === 'AbortError') {
+            // This happens if the user cancels the share sheet.
+            // It's not a real error, so we can safely ignore it.
+            console.log("Share cancelled by user.");
+        } else {
+            console.error("PDF generation/share failed:", err);
+            alert("PDF generation or sharing failed. Please check the console for details.");
+        }
     }
 }
+// --- END OF UPDATED FUNCTION ---
+
 
 // Replaced modal button listeners with direct download
 document.getElementById('generatePdf').addEventListener('click', downloadPdf);
