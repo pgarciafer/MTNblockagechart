@@ -14,6 +14,7 @@
   --danger-color: #dc3545;
   --danger-hover: #c82333;
   --success-color: #28a745;
+  --success-hover: #218838;
   --bg-color: #f8f9fa;
   --container-bg: #ffffff;
   --text-color: #212529;
@@ -36,6 +37,10 @@ body {
   min-height: 100vh;
   color: var(--text-color);
   text-align: center;
+}
+
+body.modal-open {
+    overflow: hidden;
 }
 
 .card {
@@ -361,6 +366,119 @@ th { color: var(--text-muted); font-size: 14px; }
     white-space: nowrap;
     border: 0;
 }
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+    animation: fadeIn 0.3s;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 800px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    animation: slideIn 0.3s;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--primary-color);
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover, .close-button:focus {
+    color: black;
+    text-decoration: none;
+}
+
+.modal-body {
+    padding: 20px 0;
+    text-align: center;
+    min-height: 100px;
+}
+
+#previewImage {
+    max-width: 100%;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+}
+
+#downloadPdfBtn {
+    background-color: var(--success-color);
+    color: white;
+}
+#closeModalBtn {
+    background-color: var(--secondary-color);
+    color: white;
+}
+#downloadPdfBtn:hover:not(:disabled) {
+    background-color: var(--success-hover);
+}
+#closeModalBtn:hover {
+    background-color: var(--secondary-hover);
+}
+
+.loader {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid var(--primary-color);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
 </style>
 
 
@@ -426,6 +544,23 @@ th { color: var(--text-muted); font-size: 14px; }
   </div>
 
   <input type="file" id="singleFileElem" accept="image/*" class="visually-hidden">
+</div>
+
+<div id="previewModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>PDF Preview</h2>
+      <span class="close-button">&times;</span>
+    </div>
+    <div class="modal-body">
+        <div id="loader" class="loader"></div>
+        <img id="previewImage" src="" alt="PDF Preview" style="display: none;">
+    </div>
+    <div class="modal-footer">
+      <button id="downloadPdfBtn" disabled>Download PDF</button>
+      <button id="closeModalBtn">Close</button>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -753,224 +888,148 @@ function removeAllImages() {
 document.getElementById('removeAllImagesBtn').addEventListener('click', removeAllImages);
 // ------------------------------------------------
 
-// --------- PDF Generation (Merged + Fixed) -----------
-document.getElementById('generatePdf').addEventListener('click', async()=>{
-  try {
-    const pdfContainer = document.createElement('div');
-    pdfContainer.style.width = '720px';
-    pdfContainer.style.background = '#fff';
-    pdfContainer.style.padding = '10px';
-    pdfContainer.style.borderRadius = '8px';
+// --------- PDF Generation & Preview -----------
+const previewModal = document.getElementById('previewModal');
+const closeModalBtn = document.getElementById('closeModalBtn');
+const closeButton = previewModal.querySelector('.close-button');
+const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+const loader = document.getElementById('loader');
+const previewImage = document.getElementById('previewImage');
 
-    const vesselNameVal = document.getElementById('vesselName').value.trim();
-    const antennaLocVal = document.getElementById('antennaLocation').value.trim();
+let generatedCanvas = null;
+
+function openModal() {
+    previewModal.style.display = 'block';
+    document.body.classList.add('modal-open');
+}
+
+function closeModal() {
+    previewModal.style.display = 'none';
+    document.body.classList.remove('modal-open');
+    previewImage.src = '';
+    previewImage.style.display = 'none';
+    loader.style.display = 'block';
+    downloadPdfBtn.disabled = true;
+    generatedCanvas = null;
+}
+
+closeModalBtn.addEventListener('click', closeModal);
+closeButton.addEventListener('click', closeModal);
+window.addEventListener('click', (event) => {
+    if (event.target == previewModal) {
+        closeModal();
+    }
+});
+
+async function generatePdfContentCanvas() {
+    const pdfContainer = document.createElement('div');
+    pdfContainer.style.width = '720px';
+    pdfContainer.style.background = '#fff';
+    pdfContainer.style.padding = '10px';
+    pdfContainer.style.borderRadius = '8px';
+
+    const vesselNameVal = document.getElementById('vesselName').value.trim();
+    const antennaLocVal = document.getElementById('antennaLocation').value.trim();
     const dateVal = document.getElementById('dateInput').value;
     const submittedByVal = document.getElementById('submittedBy').value.trim();
 
-if (vesselNameVal || antennaLocVal || dateVal || submittedByVal) {
-const infoDiv = document.createElement('div');
-infoDiv.style.display = 'flex';
-infoDiv.style.alignItems = 'center';
-infoDiv.style.justifyContent = 'center';
-infoDiv.style.marginBottom = '12px';
+    if (vesselNameVal || antennaLocVal || dateVal || submittedByVal) {
+        const infoDiv = document.createElement('div');
+        infoDiv.style.display = 'flex';
+        infoDiv.style.alignItems = 'center';
+        infoDiv.style.justifyContent = 'center';
+        infoDiv.style.marginBottom = '12px';
 
-const logoImg = document.createElement('img');
-logoImg.src = 'https://raw.githubusercontent.com/pgarciafer/MTNblockagechart/main/logo.png';
-logoImg.style.height = '50px';
-logoImg.style.marginRight = '12px';
-infoDiv.appendChild(logoImg);
+        const logoImg = document.createElement('img');
+        logoImg.src = 'https://raw.githubusercontent.com/pgarciafer/MTNblockagechart/main/logo.png';
+        logoImg.style.height = '50px';
+        logoImg.style.marginRight = '12px';
+        infoDiv.appendChild(logoImg);
 
-const textDiv = document.createElement('div');
-textDiv.style.textAlign = 'left';
-if(vesselNameVal) textDiv.innerHTML += `<div><strong>Vessel:</strong> ${vesselNameVal}</div>`;
-if(antennaLocVal) textDiv.innerHTML += `<div><strong>Antenna & Location:</strong> ${antennaLocVal}</div>`;
-if(dateVal) textDiv.innerHTML += `<div><strong>Date:</strong> ${dateVal}</div>`;
-if(submittedByVal) textDiv.innerHTML += `<div><strong>Submitted by:</strong> ${submittedByVal}</div>`;
+        const textDiv = document.createElement('div');
+        textDiv.style.textAlign = 'left';
+        if(vesselNameVal) textDiv.innerHTML += `<div><strong>Vessel:</strong> ${vesselNameVal}</div>`;
+        if(antennaLocVal) textDiv.innerHTML += `<div><strong>Antenna & Location:</strong> ${antennaLocVal}</div>`;
+        if(dateVal) textDiv.innerHTML += `<div><strong>Date:</strong> ${dateVal}</div>`;
+        if(submittedByVal) textDiv.innerHTML += `<div><strong>Submitted by:</strong> ${submittedByVal}</div>`;
 
-infoDiv.appendChild(textDiv);
-pdfContainer.appendChild(infoDiv);
-}
-
-
+        infoDiv.appendChild(textDiv);
+        pdfContainer.appendChild(infoDiv);
+    }
 
     const rows = Array.from(zonesBody.querySelectorAll('tr'));
-if (rows.length > 0) {
-  const gridCanvas = createBlockageGridCanvas();
-  const gridImg = document.createElement('img');
-  gridImg.src = gridCanvas.toDataURL('image/png');
-  gridImg.style.display = 'block';
-  gridImg.style.margin = '10px auto';
-  pdfContainer.appendChild(gridImg);
-}
+    if (rows.length > 0) {
+        const gridCanvas = createBlockageGridCanvas();
+        const gridImg = document.createElement('img');
+        gridImg.src = gridCanvas.toDataURL('image/png');
+        gridImg.style.display = 'block';
+        gridImg.style.margin = '10px auto';
+        pdfContainer.appendChild(gridImg);
+    }
 
-function createBlockageGridCanvas() {
-  const cols = 72;
-  const rows = 18;
-  const cellSize = 9;
-  const margin = 20;
+    function createBlockageGridCanvas() {
+        const cols = 72; const rows = 18; const cellSize = 9; const margin = 20;
+        const width = cols * cellSize + margin * 2;
+        const height = rows * cellSize + margin * 2;
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, width, height);
+        ctx.translate(margin, height - margin);
+        ctx.strokeStyle = '#000'; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -rows * cellSize); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(cols * cellSize, 0); ctx.stroke();
+        ctx.strokeStyle = '#ddd'; ctx.lineWidth = 0.5;
+        for (let c = 1; c < cols; c++) { const x = c * cellSize; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, -rows * cellSize); ctx.stroke(); }
+        for (let r = 1; r < rows; r++) { const y = -r * cellSize; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cols * cellSize, y); ctx.stroke(); }
+        const zoneRows = Array.from(zonesBody.querySelectorAll('tr'));
+        ctx.fillStyle = 'rgba(128,128,128,0.7)';
+        zoneRows.forEach(row => {
+            const azStart = parseFloat(row.cells[0].querySelector('input').value) || 0;
+            const azStop = parseFloat(row.cells[1].querySelector('input').value) || 0;
+            const el = parseFloat(row.cells[2].querySelector('input').value) || 0;
+            const elClamped = Math.min(Math.max(el, 0), 90);
+            const rowTop = Math.floor((elClamped / 90) * rows);
+            const normalizeAz = az => (az < 180 ? 36 + Math.floor(az / 5) : Math.floor((az - 180) / 5));
+            const cStart = normalizeAz(azStart); const cStop = normalizeAz(azStop);
+            const fillCell = (c, r) => ctx.fillRect(c * cellSize, -r * cellSize - cellSize, cellSize, cellSize);
+            if (cStart <= cStop) { for (let c = cStart; c <= cStop; c++) for (let r = 0; r <= rowTop; r++) fillCell(c, r); } 
+            else { for (let c = cStart; c < cols; c++) for (let r = 0; r <= rowTop; r++) fillCell(c, r); for (let c = 0; c <= cStop; c++) for (let r = 0; r <= rowTop; r++) fillCell(c, r); }
+        });
+        ctx.fillStyle = '#000'; ctx.font = '8px sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        for (let az = 180; az <= 540; az += 10) {
+            let colIndex = az <= 360 ? (az - 180) / 5 : (az - 540) / 5 + 72;
+            const x = colIndex * cellSize; if (x < 0 || x > cols * cellSize) continue;
+            ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 3); ctx.stroke();
+            ctx.save(); ctx.translate(x, 6); ctx.rotate(-Math.PI / 4); ctx.fillText((az % 360).toString(), 0, 0); ctx.restore();
+        }
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        for (let el = 0; el <= 90; el += 5) { const y = -(el / 90) * rows * cellSize; ctx.beginPath(); ctx.moveTo(-3, y); ctx.lineTo(0, y); ctx.stroke(); ctx.fillText(el.toString(), -8, y); }
+        return canvas;
+    }
 
-  const width = cols * cellSize + margin * 2;
-  const height = rows * cellSize + margin * 2;
-
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, width, height);
-
-  ctx.translate(margin, height - margin);
-
-  ctx.strokeStyle = '#000';
-  ctx.lineWidth = 1;
-
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(0, -rows * cellSize);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(cols * cellSize, 0);
-  ctx.stroke();
-
-  ctx.strokeStyle = '#ddd';
-  ctx.lineWidth = 0.5;
-
-  for (let c = 1; c < cols; c++) {
-    const x = c * cellSize;
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, -rows * cellSize);
-    ctx.stroke();
-  }
-  for (let r = 1; r < rows; r++) {
-    const y = -r * cellSize;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(cols * cellSize, y);
-    ctx.stroke();
-  }
-
-  const zoneRows = Array.from(zonesBody.querySelectorAll('tr'));
-  ctx.fillStyle = 'rgba(128,128,128,0.7)';
-  zoneRows.forEach(row => {
-    const azStart = parseFloat(row.cells[0].querySelector('input').value) || 0;
-    const azStop  = parseFloat(row.cells[1].querySelector('input').value) || 0;
-    const el      = parseFloat(row.cells[2].querySelector('input').value) || 0;
-    const elClamped = Math.min(Math.max(el, 0), 90);
-    const rowTop = Math.floor((elClamped / 90) * rows);
-
-    const normalizeAz = az => (az < 180 ? 36 + Math.floor(az/5) : Math.floor((az-180)/5));
-    const cStart = normalizeAz(azStart);
-    const cStop  = normalizeAz(azStop);
-
-    const fillCell = (c,r) => ctx.fillRect(c*cellSize, -r*cellSize - cellSize, cellSize, cellSize);
-
-    if(cStart <= cStop){
-      for(let c=cStart;c<=cStop;c++) for(let r=0;r<=rowTop;r++) fillCell(c,r);
-    } else {
-      for(let c=cStart;c<cols;c++) for(let r=0;r<=rowTop;r++) fillCell(c,r);
-      for(let c=0;c<=cStop;c++) for(let r=0;r<=rowTop;r++) fillCell(c,r);
-    }
-  });
-
-  ctx.fillStyle = '#000';
-  ctx.font = '8px sans-serif';
-
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'middle';
-  for (let az = 180; az <= 540; az += 10) {
-    let colIndex = az <= 360 ? (az - 180) / 5 : (az - 540) / 5 + 72;
-    const x = colIndex * cellSize;
-    if (x < 0 || x > cols * cellSize) continue;
-
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, 3);
-    ctx.stroke();
-
-    ctx.save();
-    ctx.translate(x, 6);
-    ctx.rotate(-Math.PI / 4);
-    ctx.fillText((az % 360).toString(), 0, 0);
-    ctx.restore();
-  }
-
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'middle';
-  for(let el=0; el<=90; el+=5){
-    const y = -(el/90)*rows*cellSize;
-    ctx.beginPath();
-    ctx.moveTo(-3,y); ctx.lineTo(0,y); ctx.stroke();
-    ctx.fillText(el.toString(), -8, y);
-  }
-
-  return canvas;
-}
-
-
-async function createVesselCanvasForPDF() {
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = 'https://pgarciafer.github.io/satcalc/IMG_0585.PNG';
-    await new Promise(resolve => img.onload = resolve);
-
-    const width = img.naturalWidth;
-    const height = img.naturalHeight;
-
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-
-    ctx.drawImage(img, 0, 0, width, height);
-
-    const size = Math.min(width, height);
-    const cx = width / 2;
-    const cy = height / 2;
-    const R = size * 0.42;
-
-    Array.from(zonesBody.querySelectorAll('tr')).forEach(row => {
-        const start = parseFloat(row.cells[0].querySelector('input').value);
-        const stop = parseFloat(row.cells[1].querySelector('input').value);
-        const el = parseFloat(row.cells[2].querySelector('input').value);
-        if (isNaN(start) || isNaN(stop)) return;
-
-        const startRad = (start - 90) * Math.PI / 180;
-        const stopRad = (stop - 90) * Math.PI / 180;
-        const elClamped = Math.min(Math.max(el, 0), 90);
-        const opacity = 0.2 + (elClamped / 90) * 0.6;
-
-        ctx.save();
-        ctx.shadowColor = 'rgba(0,0,0,0.3)';
-        ctx.shadowBlur = 8;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 0;
-
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, R, startRad, stopRad, false);
-        ctx.closePath();
-        ctx.fillStyle = `rgba(255, 0, 0, ${opacity})`;
-        ctx.fill();
-        ctx.restore();
-
-        let midAngle = (stop < start) ?
-            ((start - 90) * Math.PI / 180 + (stop + 360 - 90) * Math.PI / 180) / 2 :
-            (startRad + stopRad) / 2;
-        const labelX = cx + Math.cos(midAngle) * R * 0.7;
-        const labelY = cy + Math.sin(midAngle) * R * 0.7;
-        ctx.fillStyle = 'black';
-        ctx.font = '28px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(`${Math.round(el)}°`, labelX, labelY);
-    });
-
-    return canvas;
-}
+    async function createVesselCanvasForPDF() {
+        const img = new Image(); img.crossOrigin = "anonymous"; img.src = 'https://pgarciafer.github.io/satcalc/IMG_0585.PNG';
+        await new Promise(resolve => img.onload = resolve);
+        const width = img.naturalWidth; const height = img.naturalHeight;
+        const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const size = Math.min(width, height); const cx = width / 2; const cy = height / 2; const R = size * 0.42;
+        Array.from(zonesBody.querySelectorAll('tr')).forEach(row => {
+            const start = parseFloat(row.cells[0].querySelector('input').value); const stop = parseFloat(row.cells[1].querySelector('input').value); const el = parseFloat(row.cells[2].querySelector('input').value);
+            if (isNaN(start) || isNaN(stop)) return;
+            const startRad = (start - 90) * Math.PI / 180; const stopRad = (stop - 90) * Math.PI / 180;
+            const elClamped = Math.min(Math.max(el, 0), 90); const opacity = 0.2 + (elClamped / 90) * 0.6;
+            ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 8; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, startRad, stopRad, false); ctx.closePath(); ctx.fillStyle = `rgba(255, 0, 0, ${opacity})`; ctx.fill();
+            ctx.restore();
+            let midAngle = (stop < start) ? ((start - 90) * Math.PI / 180 + (stop + 360 - 90) * Math.PI / 180) / 2 : (startRad + stopRad) / 2;
+            const labelX = cx + Math.cos(midAngle) * R * 0.7; const labelY = cy + Math.sin(midAngle) * R * 0.7;
+            ctx.fillStyle = 'black'; ctx.font = '28px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`${Math.round(el)}°`, labelX, labelY);
+        });
+        return canvas;
+    }
 
     const gridClone = document.getElementById('grid').cloneNode(true);
     const centerCellClone = gridClone.querySelector('#cell-5');
@@ -981,42 +1040,63 @@ async function createVesselCanvasForPDF() {
     centerCellClone.appendChild(imgEl);
 
     pdfContainer.appendChild(gridClone);
-
     document.body.appendChild(pdfContainer);
     
-    const canvas = await html2canvas(pdfContainer, {
-    scale: 2,
-    useCORS: true,
-    ignoreElements: (element) => {
-        return false;
-    },
-    onrendered: function(canvas) {
-    }
-});
+    const canvas = await html2canvas(pdfContainer, { scale: 2, useCORS: true });
     
-    const imgData = canvas.toDataURL('image/jpeg',0.95);
-    const {jsPDF} = window.jspdf;
-    const pdf = new jsPDF('p','mm','a4');
-    const pageWidth = 210;
-    const pageHeight = 297;
-    const imgWidth = pageWidth;
-    const imgHeight = (canvas.height*imgWidth)/canvas.width;
-    const posY = (pageHeight - imgHeight)/2;
-    pdf.addImage(imgData,'JPEG',0,posY,imgWidth,imgHeight);
-
-    const cleanDate = dateVal.replace(/-/g,'');
-    const fileName = `${vesselNameVal}_BlockageChart_${antennaLocVal}_${cleanDate}.pdf`
-      .replace(/[\/\\?%*:|"<>]/g, '_');
-
-pdf.save(fileName);
-
     pdfContainer.remove();
-  } catch(err) {
-    console.error("PDF generation failed:", err);
-    if (window.confirm("PDF generation failed. Check console for details. Click OK to view the error in the console.")) {
+    return canvas;
+}
+
+async function showPdfPreview() {
+    openModal();
+    try {
+        generatedCanvas = await generatePdfContentCanvas();
+        previewImage.src = generatedCanvas.toDataURL('image/jpeg', 0.95);
+        loader.style.display = 'none';
+        previewImage.style.display = 'block';
+        downloadPdfBtn.disabled = false;
+    } catch (err) {
+        console.error("Preview generation failed:", err);
+        closeModal();
+        alert("PDF preview failed. Please check the console for details.");
     }
-  }
-});
+}
+
+function downloadPdf() {
+    if (!generatedCanvas) {
+        alert("Preview data not found. Please generate the preview again.");
+        return;
+    }
+    try {
+        const imgData = generatedCanvas.toDataURL('image/jpeg', 0.95);
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pageWidth = 210;
+        const pageHeight = 297;
+        const imgWidth = pageWidth;
+        const imgHeight = (generatedCanvas.height * imgWidth) / generatedCanvas.width;
+        const posY = (pageHeight - imgHeight > 0) ? (pageHeight - imgHeight) / 2 : 0;
+        pdf.addImage(imgData, 'JPEG', 0, posY, imgWidth, imgHeight);
+
+        const vesselNameVal = document.getElementById('vesselName').value.trim();
+        const antennaLocVal = document.getElementById('antennaLocation').value.trim();
+        const dateVal = document.getElementById('dateInput').value;
+        const cleanDate = dateVal.replace(/-/g, '');
+        const fileName = `${vesselNameVal}_BlockageChart_${antennaLocVal}_${cleanDate}.pdf`.replace(/[\/\\?%*:|"<>]/g, '_');
+
+        pdf.save(fileName);
+        closeModal();
+    } catch (err) {
+        console.error("PDF download failed:", err);
+        alert("PDF download failed. Please check the console for details.");
+    }
+}
+
+
+document.getElementById('generatePdf').addEventListener('click', showPdfPreview);
+downloadPdfBtn.addEventListener('click', downloadPdf);
+
 
 document.getElementById('vesselName').addEventListener('change', (event) => {
     let value = event.target.value.trim();
