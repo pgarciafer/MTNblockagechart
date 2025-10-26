@@ -263,7 +263,7 @@ button:active:not(:disabled) {
 }
 table{width:100%; border-collapse:collapse; margin-top:8px;}
 th, td{padding:8px 6px; text-align:center; border-bottom:1px solid var(--border-color);}
-th { color: var(--text-muted); font-size: 14px; }
+th { color: var(--text-muted); font-size: 14px; font-weight: 500; }
 #zonesTable td button{
   background: var(--danger-color);
   color:white;
@@ -283,7 +283,14 @@ th { color: var(--text-muted); font-size: 14px; }
   box-sizing: border-box;
 }
 
-.zone-color{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;}
+.zone-color-swatch {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.1);
+  vertical-align: middle;
+}
 .pdfTable { width:60%; border-collapse:collapse; margin: 0 auto 12px; }
 .pdfTable th, .pdfTable td { border:1px solid #aaa; padding:4px; text-align:center; }
 
@@ -504,7 +511,7 @@ th { color: var(--text-muted); font-size: 14px; }
       <div class="panel" id="blockagePanel">
         <label>Blockage Zones (AZ Start / AZ Stop in degrees)</label>
         <table id="zonesTable">
-          <thead><tr><th>AZ Start</th><th>AZ Stop</th><th>EL</th><th></th></tr></thead>
+          <thead><tr><th></th><th>AZ Start</th><th>AZ Stop</th><th>EL</th><th></th></tr></thead>
           <tbody id="zonesBody"></tbody>
         </table>
         <div style="margin-top:8px;font-size:13px;color:#536878">
@@ -574,15 +581,22 @@ const dd = String(today.getDate()).padStart(2,'0');
 document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
 
 // --------- Blockage Zones -----------
-const zoneColors = ["rgba(255,0,0,0.45)","rgba(0,128,255,0.45)","rgba(0,200,0,0.45)","rgba(255,165,0,0.45)","rgba(128,0,128,0.45)","rgba(255,20,147,0.45)"];
+const ZONE_COLORS = ['#E53935','#1E88E5','#43A047','#FB8C00','#8E24AA','#D81B60','#00ACC1','#FDD835'];
 const zonesBody=document.getElementById('zonesBody');
 const overlayCanvas=document.getElementById('overlayCanvas');
 const overlayCtx=overlayCanvas.getContext('2d');
 const vesselImg=document.getElementById('vesselImage');
 
+function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 function validateZoneRow(tr) {
-    const startInput = tr.cells[0].querySelector('input');
-    const stopInput = tr.cells[1].querySelector('input');
+    const startInput = tr.cells[1].querySelector('input');
+    const stopInput = tr.cells[2].querySelector('input');
     const start = parseFloat(startInput.value);
     const stop = parseFloat(stopInput.value);
 
@@ -597,12 +611,11 @@ function validateZoneRow(tr) {
         angle += 360; // Assumes wrap-around
     }
 
-    // A zone > 180 degrees is likely a user error (e.g., swapped start/stop)
     if (angle > 180) {
         startInput.style.borderColor = 'red';
         stopInput.style.borderColor = 'red';
     } else {
-        startInput.style.borderColor = ''; // Reset to default
+        startInput.style.borderColor = '';
         stopInput.style.borderColor = '';
     }
 }
@@ -610,21 +623,16 @@ function validateZoneRow(tr) {
 function formatNumber(num){return(Math.round(num*100)/100).toString().replace(/\.00$/,'');}
 
 function resizeOverlay() {
-const rect = vesselImg.getBoundingClientRect();
-
-// Overlay size = min(width, height) to make arcs circular
-const size = Math.min(rect.width, rect.height);
-overlayCanvas.width = size;
-overlayCanvas.height = size;
-overlayCanvas.style.width = size + 'px';
-overlayCanvas.style.height = size + 'px';
-
-// Center overlay over vessel image
-overlayCanvas.style.left = ((rect.width - size) / 2) + 'px';
-overlayCanvas.style.top = ((rect.height - size) / 2) + 'px';
-
-overlayCtx.setTransform(1, 0, 0, 1, 0, 0);
-drawZones();
+    const rect = vesselImg.getBoundingClientRect();
+    const size = Math.min(rect.width, rect.height);
+    overlayCanvas.width = size;
+    overlayCanvas.height = size;
+    overlayCanvas.style.width = size + 'px';
+    overlayCanvas.style.height = size + 'px';
+    overlayCanvas.style.left = ((rect.width - size) / 2) + 'px';
+    overlayCanvas.style.top = ((rect.height - size) / 2) + 'px';
+    overlayCtx.setTransform(1, 0, 0, 1, 0, 0);
+    drawZones();
 }
 
 
@@ -632,24 +640,21 @@ function drawZones() {
     const blockagePanel = document.getElementById('blockagePanel');
     const rows = zonesBody.querySelectorAll('tr');
     
-    if (rows.length > 0) {
-        blockagePanel.classList.add('has-zones');
-    } else {
-        blockagePanel.classList.remove('has-zones');
-    }
+    blockagePanel.classList.toggle('has-zones', rows.length > 0);
 
     const ctx = overlayCtx;
     const size = overlayCanvas.width;
     const cx = size / 2;
     const cy = size / 2;
-    const R = size * 0.42; // circle radius
+    const R = size * 0.42;
 
     ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 
     rows.forEach(row => {
-        const start = parseFloat(row.cells[0].querySelector('input').value) || 0;
-        const stop = parseFloat(row.cells[1].querySelector('input').value) || 0;
-        const el = Math.min(Math.max(parseFloat(row.cells[2].querySelector('input').value) || 0, 0), 90);
+        const color = row.dataset.color || '#ff0000';
+        const start = parseFloat(row.cells[1].querySelector('input').value) || 0;
+        const stop = parseFloat(row.cells[2].querySelector('input').value) || 0;
+        const el = Math.min(Math.max(parseFloat(row.cells[3].querySelector('input').value) || 0, 0), 90);
         const opacity = 0.2 + (el / 90) * 0.6;
 
         const startRad = (start - 90) * Math.PI / 180;
@@ -665,11 +670,10 @@ function drawZones() {
         ctx.moveTo(cx, cy);
         ctx.arc(cx, cy, R, startRad, stopRad, false);
         ctx.closePath();
-        ctx.fillStyle = `rgba(255,0,0,${opacity})`;
+        ctx.fillStyle = hexToRgba(color, opacity);
         ctx.fill();
         ctx.restore();
 
-        // EL label
         let midAngle = stop < start ?
             ((start - 90) * Math.PI / 180 + (stop + 360 - 90) * Math.PI / 180) / 2 :
             (startRad + stopRad) / 2;
@@ -691,23 +695,22 @@ event.target.value = event.target.value.toUpperCase();
 
 document.getElementById('submittedBy').addEventListener('change', (event) => {
 let value = event.target.value.trim();
-
-// Split the input value into words
 let words = value.split(/\s+/);
-
-// Capitalize the first letter of each word and make the rest lowercase
 let formattedWords = words.map(word => {
     if (word.length === 0) return '';
     return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 });
-
-// Join the words back together with a space and update the input value
 event.target.value = formattedWords.join(' ');
 });
 
 function createZoneRow(start = 0, stop = 0, el = 0) {
     const tr = document.createElement('tr');
+    const zoneIndex = zonesBody.children.length;
+    const color = ZONE_COLORS[zoneIndex % ZONE_COLORS.length];
+    tr.dataset.color = color;
+    
     tr.innerHTML = `
+    <td><span class="zone-color-swatch" style="background-color: ${color};" title="Zone Color"></span></td>
     <td><input inputmode="decimal" value="${formatNumber(start)}"></td>
     <td><input inputmode="decimal" value="${formatNumber(stop)}"></td>
     <td><input inputmode="decimal" value="${formatNumber(el)}"></td>
@@ -772,56 +775,43 @@ const placementOrder=[2,3,6,9,8,7,4,1];
 
 function processImage(file, index) {
     const reader = new FileReader();
-
     reader.onload = function(e) {
         const img = new Image();
         img.onload = () => {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            const maxSize = 600; // Keep the max size for compression
+            const maxSize = 600;
             let { width, height } = img;
 
             if (width > height) {
-                if (width > maxSize) {
-                    height *= maxSize / width;
-                    width = maxSize;
-                }
+                if (width > maxSize) { height *= maxSize / width; width = maxSize; }
             } else {
-                if (height > maxSize) {
-                    width *= maxSize / height;
-                    height = maxSize;
-                }
+                if (height > maxSize) { width *= maxSize / height; height = maxSize; }
             }
 
             canvas.width = width;
             canvas.height = height;
             ctx.drawImage(img, 0, 0, width, height);
             
-            // Use JPEG for better compression of photos
             const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-
             const cell = document.getElementById(`cell-${index}`);
             if (cell) {
-                cell.innerHTML = ""; // Clear previous content
+                cell.innerHTML = "";
                 const imgEl = document.createElement('img');
                 imgEl.src = compressedDataUrl;
                 cell.appendChild(imgEl);
             }
         };
         img.onerror = () => {
-            console.error("Error loading image from data URL. The file might be corrupted or in an unsupported format.");
+            console.error("Error loading image from data URL.");
             alert("Could not load image. Please try a different photo.");
         };
-        // The result of the FileReader is the data URL
         img.src = e.target.result;
     };
-
     reader.onerror = function() {
         console.error("FileReader failed to read the file.");
         alert("Failed to read the selected file. Please try again.");
     };
-
-    // Start reading the file as a Data URL
     reader.readAsDataURL(file);
 }
 
@@ -854,9 +844,9 @@ function setupCellClickListeners() {
         cell.removeEventListener('click', handleCellClick); 
         cell.addEventListener('click', handleCellClick);
 
-        function handleCellClick(event) {
+        function handleCellClick() {
             if (cell.querySelector('img')) {
-                if (window.confirm("This cell already has a picture. Do you want to replace it? Click 'Cancel' to remove the image.")) {
+                if (window.confirm("Replace existing picture? Or click 'Cancel' to remove it.")) {
                     openFilePickerForCell(index);
                 } else {
                     cell.innerHTML = initialNumber;
@@ -873,15 +863,8 @@ function setupCellClickListeners() {
 function removeAllImages() {
     const cells = document.querySelectorAll('.cell:not(.center-cell)');
     cells.forEach(cell => {
-        const cellMap = {
-            "1": "8", "2": "1", "3": "2",
-            "4": "7", "6": "3",
-            "7": "6", "8": "5", "9": "4"
-        };
-        const fixedIndex = cell.dataset.index;
-        const clockwiseNumber = cellMap[fixedIndex] || '';
-
-        cell.innerHTML = clockwiseNumber;
+        const cellMap = {"1": "8", "2": "1", "3": "2", "4": "7", "6": "3", "7": "6", "8": "5", "9": "4"};
+        cell.innerHTML = cellMap[cell.dataset.index] || '';
     });
 }
 
@@ -916,9 +899,7 @@ function closeModal() {
 closeModalBtn.addEventListener('click', closeModal);
 closeButton.addEventListener('click', closeModal);
 window.addEventListener('click', (event) => {
-    if (event.target == previewModal) {
-        closeModal();
-    }
+    if (event.target == previewModal) closeModal();
 });
 
 async function generatePdfContentCanvas() {
@@ -935,44 +916,40 @@ async function generatePdfContentCanvas() {
 
     if (vesselNameVal || antennaLocVal || dateVal || submittedByVal) {
         const infoDiv = document.createElement('div');
-        infoDiv.style.display = 'flex';
-        infoDiv.style.alignItems = 'center';
-        infoDiv.style.justifyContent = 'center';
-        infoDiv.style.marginBottom = '12px';
-
+        infoDiv.style.cssText = 'display:flex; align-items:center; justify-content:center; margin-bottom:12px;';
         const logoImg = document.createElement('img');
         logoImg.src = 'https://raw.githubusercontent.com/pgarciafer/MTNblockagechart/main/logo.png';
-        logoImg.style.height = '50px';
-        logoImg.style.marginRight = '12px';
+        logoImg.style.cssText = 'height:50px; margin-right:12px;';
         infoDiv.appendChild(logoImg);
-
         const textDiv = document.createElement('div');
         textDiv.style.textAlign = 'left';
         if(vesselNameVal) textDiv.innerHTML += `<div><strong>Vessel:</strong> ${vesselNameVal}</div>`;
         if(antennaLocVal) textDiv.innerHTML += `<div><strong>Antenna & Location:</strong> ${antennaLocVal}</div>`;
         if(dateVal) textDiv.innerHTML += `<div><strong>Date:</strong> ${dateVal}</div>`;
         if(submittedByVal) textDiv.innerHTML += `<div><strong>Submitted by:</strong> ${submittedByVal}</div>`;
-
         infoDiv.appendChild(textDiv);
         pdfContainer.appendChild(infoDiv);
     }
+    
+    const zonesData = Array.from(zonesBody.querySelectorAll('tr')).map(row => ({
+        start: parseFloat(row.cells[1].querySelector('input').value) || 0,
+        stop: parseFloat(row.cells[2].querySelector('input').value) || 0,
+        el: parseFloat(row.cells[3].querySelector('input').value) || 0,
+        color: row.dataset.color || '#ff0000'
+    }));
 
-    const rows = Array.from(zonesBody.querySelectorAll('tr'));
-    if (rows.length > 0) {
-        const gridCanvas = createBlockageGridCanvas();
+    if (zonesData.length > 0) {
+        const gridCanvas = createBlockageGridCanvas(zonesData);
         const gridImg = document.createElement('img');
         gridImg.src = gridCanvas.toDataURL('image/png');
-        gridImg.style.display = 'block';
-        gridImg.style.margin = '10px auto';
+        gridImg.style.cssText = 'display:block; margin:10px auto;';
         pdfContainer.appendChild(gridImg);
     }
 
-    function createBlockageGridCanvas() {
+    function createBlockageGridCanvas(zones) {
         const cols = 72; const rows = 18; const cellSize = 9; const margin = 20;
-        const width = cols * cellSize + margin * 2;
-        const height = rows * cellSize + margin * 2;
-        const canvas = document.createElement('canvas');
-        canvas.width = width; canvas.height = height;
+        const width = cols * cellSize + margin * 2; const height = rows * cellSize + margin * 2;
+        const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, width, height);
         ctx.translate(margin, height - margin);
@@ -982,20 +959,18 @@ async function generatePdfContentCanvas() {
         ctx.strokeStyle = '#ddd'; ctx.lineWidth = 0.5;
         for (let c = 1; c < cols; c++) { const x = c * cellSize; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, -rows * cellSize); ctx.stroke(); }
         for (let r = 1; r < rows; r++) { const y = -r * cellSize; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(cols * cellSize, y); ctx.stroke(); }
-        const zoneRows = Array.from(zonesBody.querySelectorAll('tr'));
-        ctx.fillStyle = 'rgba(128,128,128,0.7)';
-        zoneRows.forEach(row => {
-            const azStart = parseFloat(row.cells[0].querySelector('input').value) || 0;
-            const azStop = parseFloat(row.cells[1].querySelector('input').value) || 0;
-            const el = parseFloat(row.cells[2].querySelector('input').value) || 0;
-            const elClamped = Math.min(Math.max(el, 0), 90);
+        
+        zones.forEach(zone => {
+            ctx.fillStyle = hexToRgba(zone.color, 0.7);
+            const elClamped = Math.min(Math.max(zone.el, 0), 90);
             const rowTop = Math.floor((elClamped / 90) * rows);
             const normalizeAz = az => (az < 180 ? 36 + Math.floor(az / 5) : Math.floor((az - 180) / 5));
-            const cStart = normalizeAz(azStart); const cStop = normalizeAz(azStop);
+            const cStart = normalizeAz(zone.start); const cStop = normalizeAz(zone.stop);
             const fillCell = (c, r) => ctx.fillRect(c * cellSize, -r * cellSize - cellSize, cellSize, cellSize);
             if (cStart <= cStop) { for (let c = cStart; c <= cStop; c++) for (let r = 0; r <= rowTop; r++) fillCell(c, r); } 
             else { for (let c = cStart; c < cols; c++) for (let r = 0; r <= rowTop; r++) fillCell(c, r); for (let c = 0; c <= cStop; c++) for (let r = 0; r <= rowTop; r++) fillCell(c, r); }
         });
+
         ctx.fillStyle = '#000'; ctx.font = '8px sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
         for (let az = 180; az <= 540; az += 10) {
             let colIndex = az <= 360 ? (az - 180) / 5 : (az - 540) / 5 + 72;
@@ -1008,25 +983,23 @@ async function generatePdfContentCanvas() {
         return canvas;
     }
 
-    async function createVesselCanvasForPDF() {
+    async function createVesselCanvasForPDF(zones) {
         const img = new Image(); img.crossOrigin = "anonymous"; img.src = 'https://pgarciafer.github.io/satcalc/IMG_0585.PNG';
         await new Promise(resolve => img.onload = resolve);
-        const width = img.naturalWidth; const height = img.naturalHeight;
-        const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+        const canvas = document.createElement('canvas'); canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, width, height);
-        const size = Math.min(width, height); const cx = width / 2; const cy = height / 2; const R = size * 0.42;
-        Array.from(zonesBody.querySelectorAll('tr')).forEach(row => {
-            const start = parseFloat(row.cells[0].querySelector('input').value); const stop = parseFloat(row.cells[1].querySelector('input').value); const el = parseFloat(row.cells[2].querySelector('input').value);
-            if (isNaN(start) || isNaN(stop)) return;
-            const startRad = (start - 90) * Math.PI / 180; const stopRad = (stop - 90) * Math.PI / 180;
-            const elClamped = Math.min(Math.max(el, 0), 90); const opacity = 0.2 + (elClamped / 90) * 0.6;
-            ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 8; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
-            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, startRad, stopRad, false); ctx.closePath(); ctx.fillStyle = `rgba(255, 0, 0, ${opacity})`; ctx.fill();
+        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+        const size = Math.min(img.naturalWidth, img.naturalHeight); const cx = img.naturalWidth / 2; const cy = img.naturalHeight / 2; const R = size * 0.42;
+        zones.forEach(zone => {
+            if (isNaN(zone.start) || isNaN(zone.stop)) return;
+            const startRad = (zone.start - 90) * Math.PI / 180; const stopRad = (zone.stop - 90) * Math.PI / 180;
+            const elClamped = Math.min(Math.max(zone.el, 0), 90); const opacity = 0.2 + (elClamped / 90) * 0.6;
+            ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 8;
+            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, startRad, stopRad, false); ctx.closePath(); ctx.fillStyle = hexToRgba(zone.color, opacity); ctx.fill();
             ctx.restore();
-            let midAngle = (stop < start) ? ((start - 90) * Math.PI / 180 + (stop + 360 - 90) * Math.PI / 180) / 2 : (startRad + stopRad) / 2;
+            let midAngle = (zone.stop < zone.start) ? ((zone.start - 90) * Math.PI / 180 + (zone.stop + 360 - 90) * Math.PI / 180) / 2 : (startRad + stopRad) / 2;
             const labelX = cx + Math.cos(midAngle) * R * 0.7; const labelY = cy + Math.sin(midAngle) * R * 0.7;
-            ctx.fillStyle = 'black'; ctx.font = '28px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`${Math.round(el)}°`, labelX, labelY);
+            ctx.fillStyle = 'black'; ctx.font = '28px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`${Math.round(zone.el)}°`, labelX, labelY);
         });
         return canvas;
     }
@@ -1034,7 +1007,7 @@ async function generatePdfContentCanvas() {
     const gridClone = document.getElementById('grid').cloneNode(true);
     const centerCellClone = gridClone.querySelector('#cell-5');
     centerCellClone.innerHTML = '';
-    const vesselCanvas = await createVesselCanvasForPDF();
+    const vesselCanvas = await createVesselCanvasForPDF(zonesData);
     const imgEl = document.createElement('img');
     imgEl.src = vesselCanvas.toDataURL('image/png');
     centerCellClone.appendChild(imgEl);
@@ -1072,11 +1045,13 @@ function downloadPdf() {
         const imgData = generatedCanvas.toDataURL('image/jpeg', 0.95);
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
-        const pageWidth = 210;
-        const pageHeight = 297;
-        const imgWidth = pageWidth;
-        const imgHeight = (generatedCanvas.height * imgWidth) / generatedCanvas.width;
-        const posY = (pageHeight - imgHeight > 0) ? (pageHeight - imgHeight) / 2 : 0;
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const ratio = imgProps.width / imgProps.height;
+        const imgWidth = pdfWidth;
+        const imgHeight = imgWidth / ratio;
+        const posY = (pdfHeight - imgHeight > 0) ? (pdfHeight - imgHeight) / 2 : 0;
         pdf.addImage(imgData, 'JPEG', 0, posY, imgWidth, imgHeight);
 
         const vesselNameVal = document.getElementById('vesselName').value.trim();
@@ -1100,7 +1075,6 @@ downloadPdfBtn.addEventListener('click', downloadPdf);
 
 document.getElementById('vesselName').addEventListener('change', (event) => {
     let value = event.target.value.trim();
-
     const prefixRegex = /^[A-Z]{3}_/;
     let prefix = '';
     let namePart = value;
