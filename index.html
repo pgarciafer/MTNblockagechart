@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale-1" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Blockage Chart</title>
 <link rel="icon" href="https://raw.githubusercontent.com/pgarciafer/MTNblockagechart/main/logo1.png" type="image/png">
 <style>
@@ -446,6 +446,65 @@ th { color: var(--text-muted); font-size: 14px; font-weight: 500; text-align: le
 
 /* Modal styles removed */
 
+/* --- VOICE INPUT STYLES --- */
+.input-with-mic {
+    position: relative;
+    width: 100%;
+}
+
+.input-with-mic input {
+    padding-right: 40px;
+}
+
+.mic-btn {
+    position: absolute;
+    right: 1px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: calc(100% - 2px);
+    width: 38px;
+    background: transparent;
+    border: none;
+    border-left: 1px solid var(--border-color);
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0;
+    margin: 0;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mic-btn:hover:not(:disabled) {
+    color: var(--primary-color);
+    background-color: #f0f6ff;
+}
+
+.mic-btn:disabled {
+    cursor: not-allowed;
+    color: #ccc;
+    background-color: transparent;
+}
+
+.mic-btn.listening {
+    color: var(--danger-color);
+    animation: pulseMic 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseMic {
+    0% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+    }
+}
+/* --- END VOICE INPUT STYLES --- */
 </style>
 </head>
 <body>
@@ -461,10 +520,19 @@ th { color: var(--text-muted); font-size: 14px; font-weight: 500; text-align: le
       <section class="card-section" id="vessel-info-section">
         <h2 class="section-title">Vessel Information</h2>
         <div class="header-inputs">
-          <input id="vesselName" type="text" placeholder="3LC_VesselName">
-          <input id="antennaLocation" type="text" placeholder="Antenna & Location">
-          <input id="dateInput" type="date">  
-          <input id="submittedBy" type="text" placeholder="Tech Name">
+          <div class="input-with-mic">
+            <input id="vesselName" type="text" placeholder="3LC_VesselName">
+            <button class="mic-btn" data-target="vesselName" type="button" aria-label="Use voice input for Vessel Name">🎤</button>
+          </div>
+          <div class="input-with-mic">
+            <input id="antennaLocation" type="text" placeholder="Antenna & Location">
+            <button class="mic-btn" data-target="antennaLocation" type="button" aria-label="Use voice input for Antenna & Location">🎤</button>
+          </div>
+          <input id="dateInput" type="date">
+          <div class="input-with-mic">
+            <input id="submittedBy" type="text" placeholder="Tech Name">
+            <button class="mic-btn" data-target="submittedBy" type="button" aria-label="Use voice input for Tech Name">🎤</button>
+          </div>
         </div>
       </section>
 
@@ -1068,6 +1136,109 @@ window.addEventListener('DOMContentLoaded',() => {
     document.querySelectorAll('.header-inputs input').forEach(input => {
         input.addEventListener('focus', event => event.target.select());
     });
+    
+    // --------- VOICE INPUT SCRIPT -----------
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    let activeMicButton = null;
+    const originalPlaceholders = {};
+
+    function startListening(event) {
+        if (activeMicButton) {
+            recognition.stop();
+            return;
+        }
+        const btn = event.currentTarget;
+        const targetId = btn.dataset.target;
+        const targetInput = document.getElementById(targetId);
+        if (!targetInput) return;
+        
+        activeMicButton = btn;
+        
+        document.querySelectorAll('.mic-btn').forEach(b => b.disabled = true);
+        btn.disabled = false;
+        btn.classList.add('listening');
+        targetInput.placeholder = 'Listening...';
+
+        recognition.start();
+    }
+
+    function handleRecognitionResult(event) {
+        const transcript = event.results[0][0].transcript;
+        const targetId = activeMicButton.dataset.target;
+        const targetInput = document.getElementById(targetId);
+        
+        if (targetInput) {
+            targetInput.value = transcript;
+            targetInput.dispatchEvent(new Event('change', { bubbles: true }));
+            targetInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }
+
+    function handleRecognitionError(event) {
+        console.error('Speech recognition error', event.error);
+        let errorMessage = `An unknown speech recognition error occurred: ${event.error}`;
+        
+        switch (event.error) {
+            case 'audio-capture':
+                errorMessage = "Could not start voice input. Please ensure your microphone is connected and that you've allowed this site to access it. You might need to check your browser's permission settings in the address bar.";
+                break;
+            case 'not-allowed':
+                errorMessage = "Voice input is disabled. You need to grant microphone permissions for this site. Please click the microphone icon in your address bar and allow access.";
+                break;
+            case 'no-speech':
+                errorMessage = "No speech was detected. Please try speaking again.";
+                break;
+            case 'network':
+                errorMessage = "A network error occurred during speech recognition. Please check your internet connection.";
+                break;
+            case 'service-not-allowed':
+                 errorMessage = "Voice input service is not allowed. This might be due to your browser or system settings.";
+                 break;
+        }
+        
+        alert(errorMessage);
+    }
+
+    function handleRecognitionEnd() {
+        if (!activeMicButton) return;
+        const targetId = activeMicButton.dataset.target;
+        const targetInput = document.getElementById(targetId);
+        
+        activeMicButton.classList.remove('listening');
+        document.querySelectorAll('.mic-btn').forEach(b => b.disabled = false);
+        
+        if (targetInput) {
+            targetInput.placeholder = originalPlaceholders[targetId] || '';
+        }
+        activeMicButton = null;
+    }
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = handleRecognitionResult;
+        recognition.onerror = handleRecognitionError;
+        recognition.onend = handleRecognitionEnd;
+
+        document.querySelectorAll('.mic-btn').forEach(btn => {
+            const targetId = btn.dataset.target;
+            const targetInput = document.getElementById(targetId);
+            if (targetInput) {
+                originalPlaceholders[targetId] = targetInput.placeholder;
+            }
+            btn.addEventListener('click', startListening);
+        });
+    } else {
+        console.warn('Speech Recognition API not supported in this browser.');
+        document.querySelectorAll('.mic-btn').forEach(btn => btn.style.display = 'none');
+    }
+    // --------- END VOICE INPUT SCRIPT -----------
+
     updatePdfPreview(); // Load initial preview
 });
 </script>
