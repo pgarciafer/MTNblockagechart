@@ -112,12 +112,6 @@ input:focus, select:focus {
     gap: 16px;
     margin-bottom: 0; /* Handled by section */
 }
-/* MODIFICATION START */
-.header-inputs input {
-    width: 80%;
-    justify-self: center;
-}
-/* MODIFICATION END */
 
 /* Remove old fixed widths */
 /* #vesselName { width: 220px; }
@@ -459,9 +453,6 @@ th { color: var(--text-muted); font-size: 14px; font-weight: 500; text-align: le
             <thead><tr><th></th><th>AZ Start</th><th>AZ Stop</th><th>EL</th><th></th></tr></thead>
             <tbody id="zonesBody"></tbody>
           </table>
-          <div style="margin-top:8px;font-size:13px;color:#536878">
-            Add zones and they will be drawn over the center vessel. They are also included in the PDF.
-          </div>
           <button id="addBlockBtn" style="width: 100%; margin-top: 12px;">Add Blockage Zone</button>
         </div>
       </section>
