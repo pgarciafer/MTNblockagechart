@@ -36,15 +36,15 @@ body {
   padding: 24px;
   min-height: 100vh;
   color: var(--text-color);
-  text-align: center;
+  /* text-align: center; -- Removed for new layout */
 }
 
-body.modal-open {
+/* body.modal-open { -- Removed, no modal
     overflow: hidden;
-}
+} */
 
 .card {
-  max-width: 950px;
+  max-width: 1400px; /* Changed from 950px for 2-col layout */
   margin: auto;
   padding: 24px;
   background: var(--container-bg);
@@ -62,6 +62,7 @@ body.modal-open {
     margin-bottom: 32px;
     padding-bottom: 24px;
     border-bottom: 1px solid var(--border-color);
+    text-align: center; /* Center header content */
 }
 
 #pageLogo {
@@ -95,6 +96,8 @@ input, select {
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
   background-color: #fff;
   color: var(--text-color);
+  width: 100%; /* Make inputs responsive */
+  box-sizing: border-box; /* Add box-sizing */
 }
 
 input:focus, select:focus {
@@ -104,19 +107,16 @@ input:focus, select:focus {
 }
 
 .header-inputs {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
+    display: grid; /* Use grid for layout */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 0; /* Handled by section */
 }
-.header-inputs input {
-    padding: 10px; /* Use standard padding */
-}
-#vesselName { width: 220px; }
+/* Remove old fixed widths */
+/* #vesselName { width: 220px; }
 #antennaLocation { width: 260px; }
 #dateInput { width: 150px; }
-#submittedBy { width: 220px; }
+#submittedBy { width: 220px; } */
 
 
 #drop-area {
@@ -147,23 +147,19 @@ input:focus, select:focus {
   margin: 0;
 }
 
-.content-wrapper {
-    max-width: 650px;
-    margin: 20px auto 0;
-}
+/* Removed old .content-wrapper */
 
 .button-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: grid; /* Use grid for layout */
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
-    margin-bottom: 12px;
+    margin-bottom: 0; /* Handled by section */
     margin-top: 25px;
 }
 
 .button-container button {
-    width: 60%;
-    max-width: 350px;
+    width: 100%; /* Make buttons responsive */
+    max-width: none; /* Remove old max-width */
     margin-top: 0;
 }
 
@@ -263,7 +259,8 @@ button:active:not(:disabled) {
 }
 table{width:100%; border-collapse:collapse; margin-top:8px;}
 th, td{padding:8px 6px; text-align:center; border-bottom:1px solid var(--border-color);}
-th { color: var(--text-muted); font-size: 14px; font-weight: 500; }
+th { color: var(--text-muted); font-size: 14px; font-weight: 500; text-align: left;} /* Changed text-align */
+#zonesTable th:first-child, #zonesTable th:last-child { text-align: center; } /* Center first/last th */
 #zonesTable td button{
   background: var(--danger-color);
   color:white;
@@ -322,21 +319,16 @@ th { color: var(--text-muted); font-size: 14px; font-weight: 500; }
     }
 
     .header-inputs {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
+        /* grid-template-columns: 1fr; -- Already handled by 900px query */
     }
     .header-inputs input {
         width: 100%;
         box-sizing: border-box;
     }
     
-    #vesselName, #antennaLocation, #submittedBy {
-        width: 100%;
-    }
-    #dateInput {
-        width: 85%;
-    }
+    /* Remove old fixed-width overrides */
+    /* #vesselName, #antennaLocation, #submittedBy { ... } */
+    /* #dateInput { ... } */
 
     #zonesTable td {
         padding: 4px 2px;
@@ -345,17 +337,71 @@ th { color: var(--text-muted); font-size: 14px; font-weight: 500; }
         font-size: 16px;
     }
     
-    .button-container button {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    #grid {
-        width: 100%;
-        height: auto;
-        aspect-ratio: 1 / 1;
+    .button-container {
+        /* grid-template-columns: 1fr; -- Already handled by 900px query */
     }
 }
+
+/* NEW LAYOUT STYLES */
+.app-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+.main-content {
+  flex: 3;
+  min-width: 400px;
+}
+.preview-container {
+  flex: 2;
+  min-width: 300px;
+  position: sticky;
+  top: 24px;
+  align-self: flex-start;
+}
+#pdf-preview-content {
+  border: 1px solid var(--border-color);
+  background: #fdfdfd;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 80vh;
+  transform-origin: top center;
+}
+#pdf-preview-content img {
+  width: 100%;
+  display: block;
+}
+
+.card-section {
+    background: #fafcff;
+    border: 1px solid #e9eef5;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 16px;
+    text-align: left;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+/* Responsive stacking */
+@media screen and (max-width: 900px) {
+    .app-layout { flex-direction: column; }
+    .preview-container { position: static; }
+    .main-content, .preview-container { min-width: 0; }
+    .header-inputs { grid-template-columns: 1fr; }
+    .button-container { grid-template-columns: 1fr; }
+}
+/* END NEW LAYOUT STYLES */
+
 
 #blockagePanel:not(.has-zones) > label,
 #blockagePanel:not(.has-zones) #zonesTable thead {
@@ -374,123 +420,9 @@ th { color: var(--text-muted); font-size: 14px; font-weight: 500; }
     border: 0;
 }
 
-/* Modal styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.6);
-    animation: fadeIn 0.3s;
-}
+/* Modal styles removed */
 
-.modal-content {
-    background-color: #fefefe;
-    margin: 5% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 800px;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    animation: slideIn 0.3s;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #ddd;
-}
-
-.modal-header h2 {
-    margin: 0;
-    font-size: 20px;
-    color: var(--primary-color);
-}
-
-.close-button {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.close-button:hover, .close-button:focus {
-    color: black;
-    text-decoration: none;
-}
-
-.modal-body {
-    padding: 20px 0;
-    text-align: center;
-    min-height: 100px;
-}
-
-#previewImage {
-    max-width: 100%;
-    border: 1px solid #ddd;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #ddd;
-}
-
-#downloadPdfBtn {
-    background-color: var(--success-color);
-    color: white;
-}
-#closeModalBtn {
-    background-color: var(--secondary-color);
-    color: white;
-}
-#downloadPdfBtn:hover:not(:disabled) {
-    background-color: var(--success-hover);
-}
-#closeModalBtn:hover {
-    background-color: var(--secondary-hover);
-}
-
-.loader {
-    border: 8px solid #f3f3f3;
-    border-top: 8px solid var(--primary-color);
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 1s linear infinite;
-    margin: 20px auto;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideIn {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
 </style>
-
-
-
-
 </head>
 <body>
 <div class="card">
@@ -499,75 +431,73 @@ th { color: var(--text-muted); font-size: 14px; font-weight: 500; }
     <h1>Blockage Chart</h1>
   </div>
 
-  <div class="header-inputs">
-    <input id="vesselName" type="text" placeholder="3LC_VesselName">
-    <input id="antennaLocation" type="text" placeholder="Antenna & Location">
-    <input id="dateInput" type="date">  
-    <input id="submittedBy" type="text" placeholder="Tech Name">
-  </div>
-
-  <div class="content-wrapper">
-    <div class="controls">
-      <div class="panel" id="blockagePanel">
-        <label>Blockage Zones (AZ Start / AZ Stop in degrees)</label>
-        <table id="zonesTable">
-          <thead><tr><th></th><th>AZ Start</th><th>AZ Stop</th><th>EL</th><th></th></tr></thead>
-          <tbody id="zonesBody"></tbody>
-        </table>
-        <div style="margin-top:8px;font-size:13px;color:#536878">
-          Add zones and they will be drawn over the center vessel. They are also included in the PDF.
-        </div>
-      </div>
-    </div>
-
-    <div class="button-container">
-        <button id="addBlockBtn">Add Blockage Zone</button>
-        <button id="generatePdf">Generate PDF</button>
-        <button id="removeAllImagesBtn">Remove All Images</button>
-    </div>
-
-    <label for="fileElem" id="drop-area">
-      <p>📸 Drop up to 8 photos here or click to browse</p>
-    </label>
-    <input type="file" id="fileElem" accept="image/*" multiple class="visually-hidden">
-
-    <div id="grid">
-      <div class="cell" id="cell-1" data-index="1">8</div>
-      <div class="cell" id="cell-2" data-index="2">1</div>
-      <div class="cell" id="cell-3" data-index="3">2</div>
+  <div class="app-layout">
+    <main class="main-content">
       
-      <div class="cell" id="cell-4" data-index="4">7</div>
-      <div class="cell center-cell" id="cell-5" data-index="5">
-        <div id="vesselImage">
-          <canvas id="overlayCanvas"></canvas>
+      <section class="card-section" id="vessel-info-section">
+        <h2 class="section-title">Vessel Information</h2>
+        <div class="header-inputs">
+          <input id="vesselName" type="text" placeholder="3LC_VesselName">
+          <input id="antennaLocation" type="text" placeholder="Antenna & Location">
+          <input id="dateInput" type="date">  
+          <input id="submittedBy" type="text" placeholder="Tech Name">
         </div>
-      </div>
-      <div class="cell" id="cell-6" data-index="6">3</div>
-      
-      <div class="cell" id="cell-7" data-index="7">6</div>
-      <div class="cell" id="cell-8" data-index="8">5</div>
-      <div class="cell" id="cell-9" data-index="9">4</div>
-    </div>
-  </div>
+      </section>
 
-  <input type="file" id="singleFileElem" accept="image/*" class="visually-hidden">
-</div>
+      <section class="card-section" id="blockage-zones-section">
+        <h2 class="section-title">Blockage Zones</h2>
+        <div class="panel" id="blockagePanel">
+          <label>Blockage Zones (AZ Start / AZ Stop in degrees)</label>
+          <table id="zonesTable">
+            <thead><tr><th></th><th>AZ Start</th><th>AZ Stop</th><th>EL</th><th></th></tr></thead>
+            <tbody id="zonesBody"></tbody>
+          </table>
+          <div style="margin-top:8px;font-size:13px;color:#536878">
+            Add zones and they will be drawn over the center vessel. They are also included in the PDF.
+          </div>
+          <button id="addBlockBtn" style="width: 100%; margin-top: 12px;">Add Blockage Zone</button>
+        </div>
+      </section>
 
-<div id="previewModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>PDF Preview</h2>
-      <span class="close-button">&times;</span>
-    </div>
-    <div class="modal-body">
-        <div id="loader" class="loader"></div>
-        <img id="previewImage" src="" alt="PDF Preview" style="display: none;">
-    </div>
-    <div class="modal-footer">
-      <button id="downloadPdfBtn" disabled>Download PDF</button>
-      <button id="closeModalBtn">Close</button>
-    </div>
-  </div>
+      <section class="card-section" id="photos-section">
+        <h2 class="section-title">Supporting Photos</h2>
+        <label for="fileElem" id="drop-area">
+          <p>📸 Drop up to 8 photos here or click to browse</p>
+        </label>
+        <input type="file" id="fileElem" accept="image/*" multiple class="visually-hidden">
+        <div id="grid">
+          <div class="cell" id="cell-1" data-index="1">8</div>
+          <div class="cell" id="cell-2" data-index="2">1</div>
+          <div class="cell" id="cell-3" data-index="3">2</div>
+          <div class="cell" id="cell-4" data-index="4">7</div>
+          <div class="cell center-cell" id="cell-5" data-index="5">
+            <div id="vesselImage">
+              <canvas id="overlayCanvas"></canvas>
+            </div>
+          </div>
+          <div class="cell" id="cell-6" data-index="6">3</div>
+          <div class="cell" id="cell-7" data-index="7">6</div>
+          <div class="cell" id="cell-8" data-index="8">5</div>
+          <div class="cell" id="cell-9" data-index="9">4</div>
+        </div>
+      </section>
+
+      <section class="card-section" id="actions-section">
+        <h2 class="section-title">Actions</h2>
+        <div class="button-container">
+            <button id="generatePdf">Generate PDF</button>
+            <button id="removeAllImagesBtn">Remove All Images</button>
+        </div>
+      </section>
+
+    </main>
+    
+    <aside class="preview-container">
+      <h2 class="section-title">Live PDF Preview</h2>
+      <div id="pdf-preview-content">
+        </div>
+    </aside>
+  </div> <input type="file" id="singleFileElem" accept="image/*" class="visually-hidden">
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -727,6 +657,7 @@ function createZoneRow(start = 0, stop = 0, el = 0) {
     const azHandler = () => {
         validateZoneRow(tr);
         drawZones();
+        updatePdfPreview(); // Update preview
     };
 
     startInput.addEventListener('input', azHandler);
@@ -741,20 +672,26 @@ function createZoneRow(start = 0, stop = 0, el = 0) {
         azHandler();
     });
 
-    elInput.addEventListener('input', drawZones);
+    elInput.addEventListener('input', () => {
+        drawZones();
+        updatePdfPreview(); // Update preview
+    });
     elInput.addEventListener('blur', () => {
         elInput.value = formatNumber(Math.min(Math.max(parseFloat(elInput.value) || 0, 0), 90));
         drawZones();
+        updatePdfPreview(); // Update preview
     });
 
     tr.querySelector('button').addEventListener('click', () => {
         tr.remove();
         drawZones();
+        updatePdfPreview(); // Update preview
     });
 
     zonesBody.appendChild(tr);
     drawZones();
     validateZoneRow(tr);
+    updatePdfPreview(); // Update preview
 }
 
 
@@ -800,6 +737,7 @@ function processImage(file, index) {
                 const imgEl = document.createElement('img');
                 imgEl.src = compressedDataUrl;
                 cell.appendChild(imgEl);
+                updatePdfPreview(); // Update preview
             }
         };
         img.onerror = () => {
@@ -850,6 +788,7 @@ function setupCellClickListeners() {
                     openFilePickerForCell(index);
                 } else {
                     cell.innerHTML = initialNumber;
+                    updatePdfPreview(); // Update preview
                 }
             } else {
                 openFilePickerForCell(index);
@@ -866,48 +805,61 @@ function removeAllImages() {
         const cellMap = {"1": "8", "2": "1", "3": "2", "4": "7", "6": "3", "7": "6", "8": "5", "9": "4"};
         cell.innerHTML = cellMap[cell.dataset.index] || '';
     });
+    updatePdfPreview(); // Update preview
 }
 
 document.getElementById('removeAllImagesBtn').addEventListener('click', removeAllImages);
 // ------------------------------------------------
 
-// --------- PDF Generation & Preview -----------
-const previewModal = document.getElementById('previewModal');
-const closeModalBtn = document.getElementById('closeModalBtn');
-const closeButton = previewModal.querySelector('.close-button');
-const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-const loader = document.getElementById('loader');
-const previewImage = document.getElementById('previewImage');
-
+// --------- PDF Generation & Preview (MERGED) -----------
+// Modal variables removed
 let generatedCanvas = null;
+let previewTimeout;
 
-function openModal() {
-    previewModal.style.display = 'block';
-    document.body.classList.add('modal-open');
+// Modal functions (openModal, closeModal) removed
+
+// NEW Live Preview Function
+async function updatePdfPreview() {
+    clearTimeout(previewTimeout);
+    const previewContainer = document.getElementById('pdf-preview-content');
+    
+    // Show a simple text loader only if there's no image
+    if (!previewContainer.querySelector('img')) {
+        previewContainer.innerHTML = 'Updating...';
+    }
+    
+    previewTimeout = setTimeout(async () => {
+        try {
+            generatedCanvas = await generatePdfContentCanvas(); // Use original hi-fi function
+            
+            let previewImg = previewContainer.querySelector('img');
+            if (!previewImg) {
+                previewContainer.innerHTML = ''; // Clear 'Updating...'
+                previewImg = document.createElement('img');
+                previewContainer.appendChild(previewImg);
+            }
+            
+            previewImg.src = generatedCanvas.toDataURL('image/jpeg', 0.9);
+
+        } catch (err) {
+            console.error("Live preview failed:", err);
+            previewContainer.innerHTML = '<p style="color:red;">Preview failed to load.</p>';
+        }
+    }, 300); // 300ms debounce
 }
 
-function closeModal() {
-    previewModal.style.display = 'none';
-    document.body.classList.remove('modal-open');
-    previewImage.src = '';
-    previewImage.style.display = 'none';
-    loader.style.display = 'block';
-    downloadPdfBtn.disabled = true;
-    generatedCanvas = null;
-}
-
-closeModalBtn.addEventListener('click', closeModal);
-closeButton.addEventListener('click', closeModal);
-window.addEventListener('click', (event) => {
-    if (event.target == previewModal) closeModal();
-});
-
+// Original (high-fidelity) PDF content generator
 async function generatePdfContentCanvas() {
     const pdfContainer = document.createElement('div');
     pdfContainer.style.width = '720px';
     pdfContainer.style.background = '#fff';
     pdfContainer.style.padding = '10px';
     pdfContainer.style.borderRadius = '8px';
+    // Position off-screen
+    pdfContainer.style.position = 'absolute';
+    pdfContainer.style.left = '-9999px';
+    pdfContainer.style.top = '0';
+
 
     const vesselNameVal = document.getElementById('vesselName').value.trim();
     const antennaLocVal = document.getElementById('antennaLocation').value.trim();
@@ -1021,21 +973,7 @@ async function generatePdfContentCanvas() {
     return canvas;
 }
 
-async function showPdfPreview() {
-    openModal();
-    try {
-        generatedCanvas = await generatePdfContentCanvas();
-        previewImage.src = generatedCanvas.toDataURL('image/jpeg', 0.95);
-        loader.style.display = 'none';
-        previewImage.style.display = 'block';
-        downloadPdfBtn.disabled = false;
-    } catch (err) {
-        console.error("Preview generation failed:", err);
-        closeModal();
-        alert("PDF preview failed. Please check the console for details.");
-    }
-}
-
+// Original download function, now triggered by the main button
 function downloadPdf() {
     if (!generatedCanvas) {
         alert("Preview data not found. Please generate the preview again.");
@@ -1061,16 +999,22 @@ function downloadPdf() {
         const fileName = `${vesselNameVal}_BlockageChart_${antennaLocVal}_${cleanDate}.pdf`.replace(/[\/\\?%*:|"<>]/g, '_');
 
         pdf.save(fileName);
-        closeModal();
+        // closeModal(); // No modal to close
     } catch (err) {
         console.error("PDF download failed:", err);
         alert("PDF download failed. Please check the console for details.");
     }
 }
 
+// Replaced modal button listeners with direct download
+document.getElementById('generatePdf').addEventListener('click', downloadPdf);
+// downloadPdfBtn.addEventListener('click', downloadPdf); // Removed
 
-document.getElementById('generatePdf').addEventListener('click', showPdfPreview);
-downloadPdfBtn.addEventListener('click', downloadPdf);
+// Add live preview listeners for header inputs
+document.getElementById('vesselName').addEventListener('input', updatePdfPreview);
+document.getElementById('antennaLocation').addEventListener('input', updatePdfPreview);
+document.getElementById('dateInput').addEventListener('input', updatePdfPreview);
+document.getElementById('submittedBy').addEventListener('input', updatePdfPreview);
 
 
 document.getElementById('vesselName').addEventListener('change', (event) => {
@@ -1103,6 +1047,7 @@ window.addEventListener('DOMContentLoaded',() => {
     document.querySelectorAll('.header-inputs input').forEach(input => {
         input.addEventListener('focus', event => event.target.select());
     });
+    updatePdfPreview(); // Load initial preview
 });
 </script>
 </body>
