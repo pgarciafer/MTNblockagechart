@@ -1107,7 +1107,6 @@ async function downloadPdf() {
 
             await navigator.share({
                 title: 'Blockage Chart',
-                text: `Blockage chart for ${vesselNameVal}`,
                 files: [pdfFile]
             });
             return; // Successfully shared, no download needed.
