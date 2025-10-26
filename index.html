@@ -1106,7 +1106,7 @@ async function downloadPdf() {
             const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
             await navigator.share({
-                title: 'Blockage Chart',
+                // title: 'Blockage Chart', // Removed to prevent .txt file on iOS
                 files: [pdfFile]
             });
             return; // Successfully shared, no download needed.
