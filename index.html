@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale-1" />
 <title>Blockage Chart</title>
 <link rel="icon" href="https://raw.githubusercontent.com/pgarciafer/MTNblockagechart/main/logo1.png" type="image/png">
 <style>
@@ -123,7 +123,13 @@ input:focus, select:focus {
 #dateInput {
   width: 85%;
 }
-/* ------------------ */
+
+/* --- ADDED RULE TO CENTER INPUTS --- */
+.header-inputs input {
+  justify-self: center; /* Centers the element in its grid cell */
+  text-align: center;   /* Centers the text inside the input */
+}
+/* ----------------------------------- */
 
 
 #drop-area {
@@ -336,6 +342,12 @@ th { color: var(--text-muted); font-size: 14px; font-weight: 500; text-align: le
     /* Re-apply the 85% width for dateInput even on small screens */
     #dateInput {
         width: 85%;
+    }
+    
+    /* Center header inputs on small screens too */
+    .header-inputs input {
+      justify-self: center;
+      text-align: center;
     }
 
     /* Remove old fixed-width overrides */
