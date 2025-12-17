@@ -19,8 +19,8 @@
 }
 
 body {
-  /* Using variables from style.css */
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* MODIFIED: Removed local font-family so it inherits from style.css */
+  /* Using variables from style.css for colors */
   background-color: var(--bg-color); 
   color: var(--text-color);
   margin: 0;
@@ -1132,7 +1132,40 @@ window.addEventListener('DOMContentLoaded',() => {
     updatePdfPreview(); // Load initial preview
 });
 </script>
+
+<script>
+  // Wait for the browser to finish loading fonts
+  document.fonts.ready.then(function () {
+    // Check if "CorporateFont" is properly loaded
+    // IMPORTANT: Ensure this name matches the @font-face family name in your shared style.css
+    const fontName = 'CorporateFont'; 
+    
+    // Check if the font is active. If checks fail, it usually means the font file 404'd or CORS blocked it.
+    if (!document.fonts.check(`12px "${fontName}"`)) {
+        
+        const warning = document.createElement('div');
+        warning.style.cssText = `
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            background-color: #ff4444; 
+            color: white; 
+            text-align: center; 
+            padding: 15px; 
+            font-weight: bold; 
+            z-index: 10000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        `;
+        warning.innerHTML = `⚠️ FONT ERROR: "${fontName}" could not be loaded. <br> <span style="font-weight:normal; font-size: 0.9em;">Check that the TTF file is in the "fonts" folder and the name in style.css is correct.</span>`;
+        
+        document.body.prepend(warning);
+        console.error(`Font check failed: ${fontName} is not active.`);
+    } else {
+        console.log(`Success: ${fontName} is loaded and active.`);
+    }
+  });
+</script>
+
 </body>
 </html>
-
-}
