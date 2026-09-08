@@ -555,7 +555,7 @@ function drawZones() {
         ctx.font = '12px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(`${Math.round(el)}ﾂｰ`, labelX, labelY);
+        ctx.fillText(`${Math.round(el)}°`, labelX, labelY);
     });
 }
 
@@ -881,23 +881,60 @@ async function generatePdfContentCanvas() {
     }
 
     async function createVesselCanvasForPDF(zones) {
-        const img = new Image(); img.crossOrigin = "anonymous"; img.src = 'https://pgarciafer.github.io/satcalc/IMG_0585.PNG';
-        await new Promise(resolve => img.onload = resolve);
-        const canvas = document.createElement('canvas'); canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+        const img = new Image(); 
+        img.crossOrigin = "anonymous"; 
+        img.src = 'https://pgarciafer.github.io/satcalc/IMG_0585.PNG';
+
+        await new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = () => {
+                console.warn("No se pudo cargar la imagen del barco por CORS o URL, se usará un canvas en blanco para evitar bloqueos.");
+                resolve();
+            };
+        });
+
+        const canvas = document.createElement('canvas'); 
+        canvas.width = img.naturalWidth || 600; 
+        canvas.height = img.naturalHeight || 600;
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
-        const size = Math.min(img.naturalWidth, img.naturalHeight); const cx = img.naturalWidth / 2; const cy = img.naturalHeight / 2; const R = size * 0.42;
+        
+        if (img.naturalWidth) {
+            ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+        }
+
+        const size = Math.min(canvas.width, canvas.height); 
+        const cx = canvas.width / 2; 
+        const cy = canvas.height / 2; 
+        const R = size * 0.42;
+        
         zones.forEach(zone => {
             if (isNaN(zone.start) || isNaN(zone.stop)) return;
-            const startRad = (zone.start - 90) * Math.PI / 180; const stopRad = (zone.stop - 90) * Math.PI / 180;
-            const elClamped = Math.min(Math.max(zone.el, 0), 90); const opacity = 0.2 + (elClamped / 90) * 0.6;
-            ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 8;
-            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, R, startRad, stopRad, false); ctx.closePath(); ctx.fillStyle = hexToRgba(zone.color, opacity); ctx.fill();
+            const startRad = (zone.start - 90) * Math.PI / 180; 
+            const stopRad = (zone.stop - 90) * Math.PI / 180;
+            const elClamped = Math.min(Math.max(zone.el, 0), 90); 
+            const opacity = 0.2 + (elClamped / 90) * 0.6;
+            
+            ctx.save(); 
+            ctx.shadowColor = 'rgba(0,0,0,0.3)'; 
+            ctx.shadowBlur = 8;
+            ctx.beginPath(); 
+            ctx.moveTo(cx, cy); 
+            ctx.arc(cx, cy, R, startRad, stopRad, false); 
+            ctx.closePath(); 
+            ctx.fillStyle = hexToRgba(zone.color, opacity); 
+            ctx.fill();
             ctx.restore();
+            
             let midAngle = (zone.stop < zone.start) ? ((zone.start - 90) * Math.PI / 180 + (zone.stop + 360 - 90) * Math.PI / 180) / 2 : (startRad + stopRad) / 2;
-            const labelX = cx + Math.cos(midAngle) * R * 0.7; const labelY = cy + Math.sin(midAngle) * R * 0.7;
-            ctx.fillStyle = 'black'; ctx.font = '28px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`${Math.round(zone.el)}ﾂｰ`, labelX, labelY);
+            const labelX = cx + Math.cos(midAngle) * R * 0.7; 
+            const labelY = cy + Math.sin(midAngle) * R * 0.7;
+            ctx.fillStyle = 'black'; 
+            ctx.font = '28px sans-serif'; 
+            ctx.textAlign = 'center'; 
+            ctx.textBaseline = 'middle'; 
+            ctx.fillText(`${Math.round(zone.el)}°`, labelX, labelY);
         });
+        
         return canvas;
     }
 
@@ -912,7 +949,22 @@ async function generatePdfContentCanvas() {
     pdfContainer.appendChild(gridClone);
     document.body.appendChild(pdfContainer);
     
-    const canvas = await html2canvas(pdfContainer, { scale: 2, useCORS: true });
+    // Esperar a que todas las imágenes añadidas al contenedor estén renderizadas
+    const images = pdfContainer.querySelectorAll('img');
+    await Promise.all(Array.from(images).map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+            img.onload = resolve;
+            img.onerror = resolve;
+        });
+    }));
+
+    // html2canvas render con permisos para cargar fuentes/imágenes cruzadas y taints
+    const canvas = await html2canvas(pdfContainer, { 
+        scale: 2, 
+        useCORS: true, 
+        allowTaint: true 
+    });
     
     pdfContainer.remove();
     return canvas;
